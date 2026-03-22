@@ -7,209 +7,117 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0f1117;
-  --surface: #161b27;
-  --surface2: #1e2535;
-  --surface3: #252d3d;
-  --border: #2a3347;
-  --border2: #354060;
-  --accent: #4f8ef7;
-  --accent2: #7c3aed;
-  --green: #22c55e;
-  --amber: #f59e0b;
-  --red: #ef4444;
-  --text: #e8eaf0;
-  --text2: #8b93a8;
-  --text3: #555f77;
-  --radius: 10px;
-  --radius2: 14px;
+  --bg:#0f1117;--surface:#161b27;--surface2:#1e2535;--surface3:#252d3d;
+  --border:#2a3347;--border2:#354060;--accent:#4f8ef7;--accent2:#7c3aed;
+  --green:#22c55e;--amber:#f59e0b;--red:#ef4444;
+  --text:#e8eaf0;--text2:#8b93a8;--text3:#555f77;
+  --radius:10px;--radius2:14px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Noto Sans Armenian', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-.hidden { display: none !important; }
-
-#login-screen {
-  min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at 30% 40%, #1a2540 0%, var(--bg) 60%);
-}
-.login-box {
-  width: 380px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius2);
-  padding: 2.5rem;
-}
-.login-logo { text-align: center; margin-bottom: 2rem; }
-.login-logo .icon {
-  width: 52px; height: 52px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  border-radius: 14px;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 24px; margin-bottom: 12px;
-}
-.login-logo h1 { font-size: 18px; font-weight: 600; color: var(--text); }
-.login-logo p { font-size: 13px; color: var(--text2); margin-top: 4px; }
-.role-tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius); padding: 4px; margin-bottom: 1.5rem; }
-.role-tab { flex: 1; text-align: center; padding: 8px; border-radius: 7px; font-size: 13px; cursor: pointer; color: var(--text2); transition: all 0.2s; }
-.role-tab.active { background: var(--surface3); color: var(--text); font-weight: 500; }
-.form-group { margin-bottom: 14px; }
-.form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
-.form-group input {
-  width: 100%; padding: 10px 14px;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); color: var(--text); font-size: 14px;
-  font-family: inherit; outline: none; transition: border 0.2s;
-}
-.form-group input:focus { border-color: var(--accent); }
-.login-btn {
-  width: 100%; padding: 11px;
-  background: linear-gradient(135deg, var(--accent), #3b70d4);
-  border: none; border-radius: var(--radius); color: #fff;
-  font-size: 14px; font-weight: 600; cursor: pointer;
-  font-family: inherit; margin-top: 8px; transition: opacity 0.2s;
-}
-.login-btn:hover { opacity: 0.9; }
-.demo-hint { font-size: 11px; color: var(--text3); text-align: center; margin-top: 12px; }
-.error-msg { font-size: 12px; color: var(--red); text-align: center; margin-top: 8px; min-height: 16px; }
-
-#app-screen { display: flex; min-height: 100vh; }
-
-.sidebar {
-  width: 220px; flex-shrink: 0;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-}
-.sidebar-header { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
-.sidebar-header .brand { font-size: 15px; font-weight: 700; color: var(--text); }
-.sidebar-header .user-info { font-size: 12px; color: var(--text2); margin-top: 4px; }
-.sidebar-header .user-role {
-  display: inline-block; margin-top: 6px;
-  font-size: 10px; padding: 2px 8px;
-  background: var(--surface3); border-radius: 20px; color: var(--accent);
-  font-family: 'JetBrains Mono', monospace;
-}
-.sidebar-nav { flex: 1; padding: 12px 10px; }
-.nav-section { font-size: 10px; color: var(--text3); padding: 8px 8px 4px; text-transform: uppercase; letter-spacing: 0.08em; }
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 10px; border-radius: 8px;
-  font-size: 13px; color: var(--text2);
-  cursor: pointer; transition: all 0.15s; margin-bottom: 2px;
-}
-.nav-item:hover { background: var(--surface2); color: var(--text); }
-.nav-item.active { background: linear-gradient(135deg, rgba(79,142,247,0.15), rgba(124,58,237,0.1)); color: var(--accent); }
-.nav-item .ni { font-size: 16px; width: 20px; text-align: center; }
-.sidebar-footer { padding: 14px; border-top: 1px solid var(--border); }
-.logout-btn {
-  width: 100%; padding: 8px; background: transparent;
-  border: 1px solid var(--border); border-radius: 8px;
-  color: var(--text2); font-size: 12px; cursor: pointer;
-  font-family: inherit; transition: all 0.15s;
-}
-.logout-btn:hover { border-color: var(--red); color: var(--red); }
-
-.main { flex: 1; overflow-y: auto; }
-.page { padding: 28px 32px; display: none; }
-.page.active { display: block; }
-.page-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-.page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
-
-.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius2); padding: 18px 20px; }
-.stat-card .sc-label { font-size: 11px; color: var(--text3); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
-.stat-card .sc-val { font-size: 28px; font-weight: 700; color: var(--text); }
-.stat-card .sc-sub { font-size: 11px; color: var(--text2); margin-top: 4px; }
-.stat-card.accent { border-color: rgba(79,142,247,0.3); }
-.stat-card.green { border-color: rgba(34,197,94,0.3); }
-.stat-card.red { border-color: rgba(239,68,68,0.3); }
-
-.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius2); overflow: hidden; margin-bottom: 20px; }
-.table-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.table-header h3 { font-size: 14px; font-weight: 600; }
-.btn { padding: 7px 16px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; transition: all 0.15s; font-weight: 500; }
-.btn-primary { background: var(--accent); border: none; color: #fff; }
-.btn-primary:hover { background: #3b70d4; }
-table { width: 100%; border-collapse: collapse; }
-th { padding: 10px 16px; text-align: left; font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); font-weight: 500; }
-td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--surface2); }
-
-.badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
-.badge-10, .badge-9 { background: rgba(34,197,94,0.15); color: #4ade80; }
-.badge-8, .badge-7 { background: rgba(79,142,247,0.15); color: #7ab3f8; }
-.badge-6, .badge-5 { background: rgba(245,158,11,0.15); color: #fbbf24; }
-.badge-4, .badge-3, .badge-2, .badge-1 { background: rgba(239,68,68,0.15); color: #f87171; }
-.badge-present { background: rgba(34,197,94,0.15); color: #4ade80; }
-.badge-absent { background: rgba(239,68,68,0.15); color: #f87171; }
-.badge-late { background: rgba(245,158,11,0.15); color: #fbbf24; }
-
-.grade-table-wrap { overflow-x: auto; }
-.grade-input {
-  width: 42px; padding: 5px; text-align: center;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text); font-size: 13px;
-  font-family: 'JetBrains Mono', monospace;
-}
-.grade-input:focus { outline: none; border-color: var(--accent); }
-.att-btn {
-  padding: 4px 12px; border-radius: 20px; font-size: 11px;
-  cursor: pointer; font-family: inherit; font-weight: 500; border: none;
-  transition: all 0.15s; margin-right: 6px;
-}
-
-.date-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-.date-chip {
-  padding: 6px 14px; border-radius: 8px; font-size: 12px;
-  background: var(--surface); border: 1px solid var(--border);
-  cursor: pointer; color: var(--text2); transition: all 0.15s;
-}
-.date-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-.select-row { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
-.select-row label { font-size: 13px; color: var(--text2); }
-select {
-  padding: 8px 14px; background: var(--surface2);
-  border: 1px solid var(--border); border-radius: 8px;
-  color: var(--text); font-size: 13px; font-family: inherit; outline: none;
-}
-select:focus { border-color: var(--accent); }
-
-.diary-day { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius2); margin-bottom: 16px; overflow: hidden; }
-.diary-day-header { padding: 14px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.diary-day-header h3 { font-size: 14px; font-weight: 600; }
-.diary-day-header span { font-size: 12px; color: var(--text2); }
-.lesson-row {
-  display: grid;
-  grid-template-columns: 32px 1fr 100px 70px 90px;
-  gap: 16px; align-items: center;
-  padding: 12px 20px; border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-.lesson-row:last-child { border-bottom: none; }
-.lesson-num { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; text-align: center; }
-.lesson-subject { font-weight: 500; }
-.lesson-teacher { font-size: 12px; color: var(--text2); }
-
-.notif { display: flex; gap: 14px; align-items: flex-start; padding: 14px 18px; border-radius: var(--radius); background: var(--surface2); border: 1px solid var(--border); margin-bottom: 10px; }
-.notif-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
-.notif-text { font-size: 13px; line-height: 1.6; }
-.notif-time { font-size: 11px; color: var(--text3); margin-top: 3px; }
-
-.avatar { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-.av-blue { background: rgba(79,142,247,0.2); color: var(--accent); }
-.av-purple { background: rgba(124,58,237,0.2); color: #a78bfa; }
-.td-flex { display: flex; align-items: center; gap: 10px; }
-
-.save-flash {
-  position: fixed; bottom: 20px; right: 20px;
-  background: var(--green); color: #fff; padding: 10px 18px;
-  border-radius: 8px; font-size: 13px; font-weight: 500;
-  opacity: 0; transition: opacity 0.3s; pointer-events: none;
-}
-.save-flash.show { opacity: 1; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans Armenian',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.hidden{display:none!important;}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 30% 40%,#1a2540 0%,var(--bg) 60%);}
+.login-box{width:380px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:2.5rem;}
+.login-logo{text-align:center;margin-bottom:2rem;}
+.login-logo .icon{width:52px;height:52px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:12px;}
+.login-logo h1{font-size:18px;font-weight:600;}
+.login-logo p{font-size:13px;color:var(--text2);margin-top:4px;}
+.role-tabs{display:flex;gap:4px;background:var(--surface2);border-radius:var(--radius);padding:4px;margin-bottom:1.5rem;}
+.role-tab{flex:1;text-align:center;padding:8px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--text2);transition:all 0.2s;}
+.role-tab.active{background:var(--surface3);color:var(--text);font-weight:500;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;}
+.form-group input{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border 0.2s;}
+.form-group input:focus{border-color:var(--accent);}
+.login-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),#3b70d4);border:none;border-radius:var(--radius);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;}
+.login-btn:hover{opacity:0.9;}
+.error-msg{font-size:12px;color:var(--red);text-align:center;margin-top:8px;min-height:16px;}
+#app-screen{display:flex;min-height:100vh;}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.sidebar-header{padding:20px 18px 16px;border-bottom:1px solid var(--border);}
+.sidebar-header .brand{font-size:15px;font-weight:700;}
+.sidebar-header .user-info{font-size:12px;color:var(--text2);margin-top:4px;}
+.sidebar-header .user-role{display:inline-block;margin-top:6px;font-size:10px;padding:2px 8px;background:var(--surface3);border-radius:20px;color:var(--accent);font-family:'JetBrains Mono',monospace;}
+.sidebar-nav{flex:1;padding:12px 10px;}
+.nav-section{font-size:10px;color:var(--text3);padding:8px 8px 4px;text-transform:uppercase;letter-spacing:0.08em;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13px;color:var(--text2);cursor:pointer;transition:all 0.15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:linear-gradient(135deg,rgba(79,142,247,0.15),rgba(124,58,237,0.1));color:var(--accent);}
+.nav-item .ni{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{padding:14px;border-top:1px solid var(--border);}
+.logout-btn{width:100%;padding:8px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.main{flex:1;overflow-y:auto;}
+.page{padding:28px 32px;display:none;}
+.page.active{display:block;}
+.page-title{font-size:22px;font-weight:700;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:24px;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:18px 20px;}
+.stat-card .sc-label{font-size:11px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;}
+.stat-card .sc-val{font-size:28px;font-weight:700;}
+.stat-card .sc-sub{font-size:11px;color:var(--text2);margin-top:4px;}
+.stat-card.accent{border-color:rgba(79,142,247,0.3);}
+.stat-card.red{border-color:rgba(239,68,68,0.3);}
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:20px;}
+.table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.table-header h3{font-size:14px;font-weight:600;}
+.btn{padding:7px 16px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s;font-weight:500;}
+.btn-primary{background:var(--accent);border:none;color:#fff;}
+.btn-primary:hover{background:#3b70d4;}
+.btn-danger{background:transparent;border:1px solid var(--red);color:var(--red);}
+.btn-danger:hover{background:rgba(239,68,68,0.1);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2);}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text);}
+table{width:100%;border-collapse:collapse;}
+th{padding:10px 16px;text-align:left;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);font-weight:500;}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--surface2);}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.badge-10,.badge-9{background:rgba(34,197,94,0.15);color:#4ade80;}
+.badge-8,.badge-7{background:rgba(79,142,247,0.15);color:#7ab3f8;}
+.badge-6,.badge-5{background:rgba(245,158,11,0.15);color:#fbbf24;}
+.badge-4,.badge-3,.badge-2,.badge-1{background:rgba(239,68,68,0.15);color:#f87171;}
+.badge-present{background:rgba(34,197,94,0.15);color:#4ade80;}
+.badge-absent{background:rgba(239,68,68,0.15);color:#f87171;}
+.badge-late{background:rgba(245,158,11,0.15);color:#fbbf24;}
+.badge-admin{background:rgba(124,58,237,0.2);color:#a78bfa;}
+.grade-input{width:42px;padding:5px;text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;font-family:'JetBrains Mono',monospace;}
+.grade-input:focus{outline:none;border-color:var(--accent);}
+.att-btn{padding:4px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500;border:none;transition:all 0.15s;margin-right:6px;}
+.date-chip{padding:6px 14px;border-radius:8px;font-size:12px;background:var(--surface);border:1px solid var(--border);cursor:pointer;color:var(--text2);transition:all 0.15s;}
+.date-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.select-row{display:flex;gap:12px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
+.select-row label{font-size:13px;color:var(--text2);}
+select{padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;}
+select:focus{border-color:var(--accent);}
+.notif{display:flex;gap:14px;align-items:flex-start;padding:14px 18px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border);margin-bottom:10px;}
+.notif-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.notif-text{font-size:13px;line-height:1.6;}
+.notif-time{font-size:11px;color:var(--text3);margin-top:3px;}
+.avatar{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+.av-blue{background:rgba(79,142,247,0.2);color:var(--accent);}
+.av-purple{background:rgba(124,58,237,0.2);color:#a78bfa;}
+.av-green{background:rgba(34,197,94,0.2);color:#4ade80;}
+.av-red{background:rgba(239,68,68,0.2);color:#f87171;}
+.td-flex{display:flex;align-items:center;gap:10px;}
+.save-flash{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.save-flash.show{opacity:1;}
+.loading-overlay{position:fixed;inset:0;background:rgba(15,17,23,0.8);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px;}
+.loading-overlay p{color:var(--text2);font-size:14px;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:24px;margin-bottom:20px;}
+.form-card h3{font-size:14px;font-weight:600;margin-bottom:18px;color:var(--text);}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px;}
+.form-field label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;}
+.form-field input,.form-field select{width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;}
+.form-field input:focus,.form-field select:focus{border-color:var(--accent);}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:12px;margin:3px;}
+.tag-remove{cursor:pointer;color:var(--text3);font-size:14px;line-height:1;}
+.tag-remove:hover{color:var(--red);}
+.diary-day-header{padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:500;}
 </style>
 </head>
 <body>
@@ -225,18 +133,18 @@ select:focus { border-color: var(--accent); }
       <div class="role-tab active" onclick="setRole('teacher')">Teacher</div>
       <div class="role-tab" onclick="setRole('student')">Student</div>
       <div class="role-tab" onclick="setRole('parent')">Parent</div>
+      <div class="role-tab" onclick="setRole('admin')">Admin</div>
     </div>
     <div class="form-group">
       <label>Username</label>
-      <input type="text" id="username" placeholder="Enter your username...">
+      <input type="text" id="username" placeholder="Enter username...">
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()">
+      <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="login-btn" onclick="doLogin()">Sign In</button>
     <div class="error-msg" id="login-error"></div>
-
   </div>
 </div>
 
@@ -255,352 +163,192 @@ select:focus { border-color: var(--accent); }
   <div class="main" id="main-content"></div>
 </div>
 
+<div class="loading-overlay hidden" id="loading-overlay">
+  <div class="spinner"></div>
+  <p id="loading-text">Loading...</p>
+</div>
 <div class="save-flash" id="save-flash">✓ Saved</div>
 
 <script>
-const USERS = {
-  'irinamargaryan41@gmail.com_t':  { pass:'Mirina2006',      role:'teacher', name:'Irina Margaryan',  subject:'Mathematics & French', classes:['6A','9A','7B','5A'] },
-  'arturmargaryann9@gmail.com_t':  { pass:'1234',            role:'teacher', name:'Artur Margaryan',  subject:'History & Digital Literacy and Computer Science', classes:['7A','9A','6A','4B','1A'] },
-  'teacher3':                       { pass:'1234',           role:'teacher', name:'Vahan Hovhannisyan', subject:'Physics',   classes:['10B','11A'] },
-  'marina.margarian.6@gmail.com_t': { pass:'mashok8858',     role:'teacher', name:'Marina Margaryan', subject:'English',          classes:['9A','7B','3A','5B'] },
-  'Narine22_t':                     { pass:'KK2',            role:'teacher', name:'Narine Margaryan', subject:'Armenian Language', classes:['8B','10A','10B','5A','7A'] },
-  'vahanteryan25@gmail.com':        { pass:'Burger2',        role:'student', name:'Irina Margaryan',  class:'12A' },
-  'margaryannarine77@gmail.com':    { pass:'1234',           role:'student', name:'Artur Margaryan',  class:'6A' },
-  'parent1':                        { pass:'1234',           role:'parent',  name:'Narine Margaryan', studentName:'Irina Margaryan', studentClass:'12A' },
+// ===================== CONFIG =====================
+const API_KEY = '$2a$10$Gi.k.77zA4oqHpM7hiWOPu.sz164TIhfB/m5M0o91k2DOfHCi08b6';
+const BIN_SCHOOL  = '69be81f0b7ec241ddc8bb006'; // users, classes, schedule
+const BIN_GRADES  = '69be81fdaa77b81da90584f9'; // grades + lessonInfo
+const BIN_ATT     = '69be81feaa77b81da90584fe'; // attendance
 
-};
-const CLASSES = {
-'7B':[
-'Aram Hovsepyan','Gor Mkrtchyan','Narek Avetisyan','Tigran Karapetyan','Vahe Grigoryan','Davit Petrosyan','Artur Sargsyan','Suren Hakobyan','Alen Manukyan','Hayk Vardanyan',
-'Ani Harutyunyan','Mariam Asatryan','Lilit Khachatryan','Nare Margaryan','Sona Ghazaryan','Anahit Sahakyan','Lusine Melkonyan','Elen Danielyan','Meline Abrahamyan',
-'Arpi Baghdasaryan','Gayane Papikyan','Siranush Arakelyan','Tatevik Kirakosyan','Anna Stepanyan','Zaruhi Tumanyan','Karen Nalbandyan','Milena Chilingaryan','Erik Balasanyan','Gohar Asatryan'
-],
+// ===================== STATIC ADMIN =====================
+const ADMIN = { pass: 'SchoolAdmin2026', name: 'Administrator' };
 
-'5B':[
-'Ashot Abrahamyan','Gevorg Baghdasaryan','Levon Chobanyan','Gagik Davtyan','Samvel Eloyan','Ruben Farajyan','Arsen Gasparyan','David Hambardzumyan','Karine Ishkhanyan','Liana Jivanyan',
-'Meri Keshishyan','Nelli Lazaryan','Vardan Minasyan','Marine Norikyan','Hasmik Ohanyan','Seda Petoyan','Anush Qocharyan','Lusik Rshuni','Nana Sargsyan','Edgar Torosyan',
-'Svetlana Ulikhanyan','Rima Voskanyan','Gor Yeghiazaryan','Aram Zhamkochyan','Ani Zargaryan','Mariam Zatikyan','Lilit Zeynalyan','Nare Zorayan','Sona Zorikyan'
-],
-
-'6A':[
-'Sona Atoyan','Gevorg Ayvazyan','Araqs Avagyan','Levon Baghdasaryan','Gurgen Gasparyan','Daniel Grigoryan','Hakob Grigoryan','Gayane Yeghiazaryan','Aida Enokyan','Ani Eloyan',
-'Maria Kharazyan','Shantellina Hakobyan','Samvel Hakobyan','Shoghane Hambardzumyan','Rafael Hambardzumyan','Mariam Ghazaryan','Hovhannes Malkhasyan','Irina Margaryan','Artur Margaryan','Garik Martirosyan',
-'Areg Melkonyan','Melkon Mkrtumyan','Lili Mkrtchyan','Karine Musheghyan','Sargis Nersisyan','Rima Poghosyan','Angelina Sargsyan','Saro Saghatelyan','Elen Sargsyan','Adrianna Vardanyan'
-],
-
-'9A':[
-'Arman Abelyan','Gor Balayan','Narek Chobanyan','Tigran Dallakyan','Vahe Eganyan','Davit Frangulyan','Artur Ginosyan','Suren Hmayakyan','Alen Imastyan','Hayk Jragatsyan',
-'Ani Karakhanyan','Mariam Lorentsyan','Lilit Madoyan','Nare Norikyan','Sona Oshakanyan','Anahit Paronyan','Lusine Qeshishyan','Elen Rshuni','Meline Sahakyan','Arpi Tigranyan',
-'Gayane Ulikhanyan','Siranush Vahanyan','Tatevik Voskanyan','Anna Xandanyan','Zaruhi Yerkanyan','Karen Zaqyan','Milena Zurabyan','Erik Zorikyan','Gohar Zatikyan'
-],
-
-'7A':[
-'Aram Zhamharyan','Gor Zaqaryan','Narek Zeynalyan','Tigran Zorayan','Vahe Zatikyan','Davit Zhamkochyan','Artur Zanginyan','Suren Zargaryan','Alen Zatikyan','Hayk Zorikyan',
-'Ani Zhamharyan','Mariam Zaqaryan','Lilit Zeynalyan','Nare Zorayan','Sona Zatikyan','Anahit Zhamkochyan','Lusine Zanginyan','Elen Zargaryan','Meline Zatikyan','Arpi Zorikyan',
-'Gayane Zhamharyan','Siranush Zaqaryan','Tatevik Zeynalyan','Anna Zorayan','Zaruhi Zatikyan','Karen Zhamkochyan','Milena Zanginyan','Erik Zargaryan','Gohar Zatikyan'
-],
-
-'4B':[
-'Aram Khandanyan','Gor Kroyan','Narek Khechumyan','Tigran Khlghatyan','Vahe Khurshudyan','Davit Kinosyan','Artur Kirakosyan','Suren Kloyan','Alen Knyazyan','Hayk Komitasyan',
-'Ani Koshkaryan','Mariam Kotanjyan','Lilit Kroyants','Nare Ktorikyan','Sona Ktshyan','Anahit Kubatyan','Lusine Kulijanyan','Elen Kumaryan','Meline Kurkchyan','Arpi Kushkyan',
-'Gayane Kutoyan','Siranush Kuvshinyan','Tatevik Kyureghyan','Anna Kyurkchyan','Zaruhi Kyurumyan','Karen Kyutukyan','Milena Kyuzaryan','Erik Kyuzikyan','Gohar Kyuzyan'
-],
-
-'1A':[
-'Aram Lalayan','Gor Lalayev','Narek Lalayants','Tigran Lalazaryan','Vahe Lalazaryan','Davit Lalayan','Artur Lalayev','Suren Lalazaryan','Alen Lalayants','Hayk Lalayan',
-'Ani Lalayev','Mariam Lalayan','Lilit Lalazaryan','Nare Lalayants','Sona Lalayan','Anahit Lalayev','Lusine Lalazaryan','Elen Lalayants','Meline Lalayan','Arpi Lalayev',
-'Gayane Lalazaryan','Siranush Lalayants','Tatevik Lalayan','Anna Lalayev','Zaruhi Lalazaryan','Karen Lalayants','Milena Lalayan','Erik Lalayev','Gohar Lalazaryan'
-],
-
-'12A':[
-'Aram Malkhasyan','Gor Manasyan','Narek Manvelyan','Tigran Margosyan','Vahe Markaryan','Davit Martikyan','Artur Matevosyan','Suren Mheryan','Alen Mikayelyan','Hayk Minasyan',
-'Ani Mirzoyan','Mariam Mkrtchyan','Lilit Movsisyan','Nare Muradyan','Sona Musayelyan','Anahit Mxitaryan','Lusine Myasnikyan','Elen Nalchajyan','Meline Navasardyan','Arpi Nazaryan',
-'Gayane Negharyan','Siranush Norayr','Tatevik Nshanian','Anna Nshanyan','Zaruhi Nubar','Karen Nurijanyan','Milena Nurumyan','Erik Nuryan','Gohar Nver'
-],
-
-'10A':[
-'Ani Oganesyan','Aram Okroyan','Mari Olkanyan','Vahe Ovakimyan','Naira Ovasapyan','Gor Ovsepyan','Silva Ozanyan','Davit Pahlevanyan','Karen Pambukyan','Lilit Panosyan',
-'Arman Papazyan','Nare Parer','Tigran Paronyan','Lusine Parsamyan','Areg Partamyan','Meri Pashayan','Gagik Pashikyan','Anahit Patkanyan','Samvel Paytyan','Nelli Peganyan',
-'Vardan Petoyan','Marine Pilosyan','Erik Poghosyan','Seda Poladyan','Arsen Poghikyan','Milena Prangyan','David Pshyan','Anna Ptghni','Gor Puzikyan'
-],
-
-'10B':[
-'Lilit Qamalyan','Arman Qananyan','Nare Qasaryan','Tigran Qazaryan','Lusine Qechyan','Aram Qerobyan','Gor Qezaryan','Narek Qirakosyan','Tigran Qochyan','Vahe Qoshtoyan',
-'Davit Qulinyan','Artur Qutoyan','Suren Qvinyan','Alen Qyaramyan','Hayk Qyureghyan','Ani Qyuryan','Mariam Qyuzbashyan','Lilit Qyuzikyan','Nare Qyuzyan','Sona Qyuzaryan',
-'Anahit Qyuzbekyan','Lusine Qyuzgan','Elen Qyuzdaryan','Meline Qyuzmanyan','Arpi Qyuznoyan','Gayane Qyuzshyan','Siranush Qyuzvardyan','Tatevik Qyuzyan','Anna Qyuzar'
-],
-
-'11A':[
-'Karen Rshuni','Diana Sahakyan','Levon Sargsyan','Aram Saroyan','Gor Sedrakyan','Narek Seferyan','Tigran Sekoyan','Vahe Selimyan','Davit Serobyan','Artur Shahbazyan',
-'Suren Shahinyan','Alen Shahmuradyan','Hayk Shahnazaryan','Ani Shakaryan','Mariam Shaldjyan','Lilit Shamamyan','Nare Shantyan','Sona Shapoyan','Anahit Shatvanyan','Lusine Shavarshyan',
-'Elen Shekoyan','Meline Shemyan','Arpi Shikhmuradyan','Gayane Shikoyan','Siranush Shirinayan','Tatevik Shishmanyan','Anna Shogheryan','Zaruhi Shoroyan','Gohar Shushanyan'
-]
-};
-
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const DAY_NAMES_SHORT = ['Mon','Tue','Wed','Thu','Fri'];
-const DAY_NAMES_LONG  = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
-
-const CLASS_SCHEDULE = {
-  '12A': {
-    'Mon': [
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Biology', teacher:'Nare Harutyunyan'},
-      {sub:'English', teacher:'Marina Margaryan'},
-    ],
-    'Tue': [
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
-      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
-      {sub:'History', teacher:'Artur Margaryan'}, 
-    ],
-    'Wed': [
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Biology', teacher:'Nare Harutyunyan'},
-      {sub:'English', teacher:'Marina Margaryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Chemistry', teacher:'Karine Avagyan'},
-    ],
-    'Thu': [
-      {sub:'History', teacher:'Artur Margaryan'}, 
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
-      {sub:'English', teacher:'Marina Margaryan'},
-      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
-    ],
-    'Fri': [
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'History', teacher:'Artur Margaryan'}, 
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
-      {sub:'English', teacher:'Marina Margaryan'},
-    ],
-  },
-
-  '12A': {
-    'Mon': [
-      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'English', teacher:'Marina Margaryan'},
-      {sub:'History', teacher:'Artur Margaryan'}, 
-    ],
-    'Tue': [
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Chemistry', teacher:'Karine Avagyan'},
-      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Biology', teacher:'Nare Harutyunyan'},
-    ],
-    'Wed': [
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'History', teacher:'Artur Margaryan'}, 
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
-      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
-    ],
-    'Thu': [
-      {sub:'Digital literacy and Computer science', teacher:'Artur Margaryan'}, 
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'English', teacher:'Marina Margaryan'},
-      {sub:'History', teacher:'Artur Margaryan'}, 
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-    ],
-    'Fri': [
-      {sub:'Biology', teacher:'Nare Harutyunyan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'History', teacher:'Artur Margaryan'}, 
-      {sub:'English', teacher:'Marina Margaryan'},
-    ],
-  },
-
-  '6A': {
-    'Mon': [
-      {sub:'English', teacher:'Marina Margaryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'History', teacher:'Artur Margaryan'}, 
-      {sub:'Russian Language', teacher:'Lusine Vardanyan'},
-    ],
-    'Tue': [
-      {sub:'Physical Education', teacher:'Aram Ghazaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'English', teacher:'Marina Margaryan'},
-    ],
-    'Wed': [
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'History', teacher:'Artur Margaryan'}, 
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Physical Education', teacher:'Anna Sargsyan'},
-      {sub:'Russian Language', teacher:'Vahan Hovhannisyan'},
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-    ],
-    'Thu': [
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'French', teacher:'Irina Margaryan'},
-      {sub:'Nature', teacher:'Anna Sargsyan'},
-      {sub:'Handcraft', teacher:'Lusine Vardanyan'},
-      {sub:'Russian Language', teacher:'Karine Avagyan'},
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-    ],
-    'Fri': [
-      {sub:'Physical Education', teacher:'Nare Harutyunyan'},
-      {sub:'Digital literacy and Computer science', teacher:'Artur Margaryan'}, 
-      {sub:'History', teacher:'Artur Margaryan'}, 
-      {sub:'English', teacher:'Marina Margaryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Mathematics', teacher:'Irina Margaryan'},
-    ],
-  },
-};
-const GRADES = {};
-const ATTENDANCE = {};
-
-const JSONBIN_API_KEY = '$2a$10$Gi.k.77zA4oqHpM7hiWOPu.sz164TIhfB/m5M0o91k2DOfHCi08b6';
-const BIN_ID_GRADES = '69be81fdaa77b81da90584f9';
-const BIN_ID_ATT    = '69be81feaa77b81da90584fe';
-
-async function jsonbinGet(binId) {
-  const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-    headers: { 'X-Master-Key': JSONBIN_API_KEY }
-  });
-  const data = await res.json();
-  return data.record;
-}
-
-async function jsonbinSet(binId, record) {
-  await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-    body: JSON.stringify(record)
-  });
-}
-
-async function initData() {
-  Object.keys(CLASSES).forEach(cls => {
-    GRADES[cls] = {};
-    ATTENDANCE[cls] = {};
-    CLASSES[cls].forEach(st => { GRADES[cls][st] = {}; });
-  });
-  try {
-    const loaded = await jsonbinGet(BIN_ID_GRADES);
-    if (loaded && typeof loaded === 'object' && !Array.isArray(loaded)) {
-      Object.keys(loaded).forEach(cls => {
-        if (!GRADES[cls]) GRADES[cls] = {};
-        Object.keys(loaded[cls]).forEach(st => {
-          if (!GRADES[cls][st]) GRADES[cls][st] = {};
-          Object.assign(GRADES[cls][st], loaded[cls][st]);
-        });
-      });
-    }
-  } catch(e) {}
-  try {
-    const loaded = await jsonbinGet(BIN_ID_ATT);
-    if (loaded && typeof loaded === 'object' && !Array.isArray(loaded)) {
-      Object.keys(loaded).forEach(cls => {
-        if (!ATTENDANCE[cls]) ATTENDANCE[cls] = {};
-        Object.assign(ATTENDANCE[cls], loaded[cls]);
-      });
-    }
-  } catch(e) {}
-}
-
-async function persistGrades() {
-  try { await jsonbinSet(BIN_ID_GRADES, GRADES); } catch(e) {}
-}
-
-async function persistAttendance() {
-  try { await jsonbinSet(BIN_ID_ATT, ATTENDANCE); } catch(e) {}
-}
-
-function getTodayStr() {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth()+1).padStart(2,'0');
-  const day = String(d.getDate()).padStart(2,'0');
-  return `${year}-${month}-${day}`;
-}
-
-function formatDate(str) {
-  const d = new Date(str);
-  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
-}
-
+// ===================== STATE =====================
+let DB = { users:{}, classes:{}, schedule:{} };
+let GRADES = {};
+let LESSON_INFO = {};
+let ATTENDANCE = {};
 let currentUser = null;
 let selectedClass = null;
 let selectedDate = getTodayStr();
 let selectedSubject = null;
 
-let currentRole = 'teacher';
+// ===================== JSONBIN API =====================
+async function binGet(id) {
+  const r = await fetch(`https://api.jsonbin.io/v3/b/${id}/latest`, {
+    headers:{'X-Master-Key':API_KEY}
+  });
+  const d = await r.json();
+  return d.record;
+}
 
+async function binSet(id, data) {
+  await fetch(`https://api.jsonbin.io/v3/b/${id}`, {
+    method:'PUT',
+    headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},
+    body:JSON.stringify(data)
+  });
+}
+
+// ===================== LOAD / SAVE =====================
+async function loadAll() {
+  showLoading('Loading school data...');
+  try {
+    const school = await binGet(BIN_SCHOOL);
+    if (school && school.users) DB = school;
+  } catch(e){}
+  try {
+    const g = await binGet(BIN_GRADES);
+    if (g && g.grades) { GRADES = g.grades; LESSON_INFO = g.lessonInfo||{}; }
+    else if (g && typeof g==='object') GRADES = g;
+  } catch(e){}
+  try {
+    const a = await binGet(BIN_ATT);
+    if (a && typeof a==='object' && !Array.isArray(a) && !a.type) ATTENDANCE = a;
+  } catch(e){}
+  // Init empty grade/att objects for classes
+  Object.keys(DB.classes||{}).forEach(cls => {
+    if (!GRADES[cls]) GRADES[cls] = {};
+    if (!ATTENDANCE[cls]) ATTENDANCE[cls] = {};
+    (DB.classes[cls]||[]).forEach(st => { if (!GRADES[cls][st]) GRADES[cls][st] = {}; });
+  });
+  hideLoading();
+}
+
+async function saveSchool() {
+  try { await binSet(BIN_SCHOOL, DB); } catch(e){}
+}
+
+async function saveGradesDB() {
+  try { await binSet(BIN_GRADES, {grades:GRADES, lessonInfo:LESSON_INFO}); } catch(e){}
+}
+
+async function saveAttDB() {
+  try { await binSet(BIN_ATT, ATTENDANCE); } catch(e){}
+}
+
+// ===================== UTILS =====================
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function dateToStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatDate(str) {
+  const d = new Date(str);
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d.getDate()} ${months[d.getMonth()]}`;
+}
+function initials(name) {
+  return name.split(' ').map(w=>w[0]).join('').substring(0,2);
+}
+function showLoading(txt='Loading...') {
+  document.getElementById('loading-text').textContent=txt;
+  document.getElementById('loading-overlay').classList.remove('hidden');
+}
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.add('hidden');
+}
+function flashSave() {
+  const f=document.getElementById('save-flash');
+  f.classList.add('show');
+  setTimeout(()=>f.classList.remove('show'),2000);
+}
+function getSubjects(user) {
+  const u = user||currentUser;
+  return (u.subject||'').split('&').map(s=>s.trim()).filter(Boolean);
+}
+
+// ===================== AUTH =====================
+let currentRole = 'teacher';
 function setRole(r) {
-  currentRole = r;
+  currentRole=r;
   document.querySelectorAll('.role-tab').forEach((t,i)=>{
-    t.classList.toggle('active', ['teacher','student','parent'][i]===r);
+    t.classList.toggle('active',['teacher','student','parent','admin'][i]===r);
   });
 }
 
 function doLogin() {
   const u = document.getElementById('username').value.trim();
   const p = document.getElementById('password').value.trim();
-  const selectedRole = document.querySelector('.role-tab.active')?.textContent.trim().toLowerCase();
-  const roleMap = { 'teacher': 'teacher', 'student': 'student', 'parent': 'parent' };
-  const role = roleMap[selectedRole] || 'student';
+  const err = document.getElementById('login-error');
 
-  let key = u;
-  let user = USERS[u];
-  if (!user && role === 'teacher') {
-    key = u + '_t';
-    user = USERS[key];
-  }
-
-  if (!user || user.pass !== p || user.role !== role) {
-    document.getElementById('login-error').textContent = 'Incorrect username, password, or role';
+  if (currentRole==='admin') {
+    if (p===ADMIN.pass) {
+      currentUser = {role:'admin',name:ADMIN.name,username:'admin'};
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-screen').classList.remove('hidden');
+      buildApp();
+    } else { err.textContent='Incorrect password'; }
     return;
   }
-  currentUser = { ...user, username: key };
+
+  // Find user by username + role
+  const users = DB.users||{};
+  let found = null, foundKey = null;
+  for (const [key, val] of Object.entries(users)) {
+    const loginKey = key.replace(/_t$/,'').replace(/_s$/,'');
+    if (loginKey===u && val.role===currentRole && val.pass===p) {
+      found=val; foundKey=key; break;
+    }
+  }
+  if (!found) { err.textContent='Incorrect username, password, or role'; return; }
+  currentUser = {...found, username:foundKey};
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app-screen').classList.remove('hidden');
   buildApp();
 }
 
 function logout() {
-  currentUser = null;
+  currentUser=null;
   document.getElementById('app-screen').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
-  document.getElementById('username').value = '';
-  document.getElementById('password').value = '';
-  document.getElementById('login-error').textContent = '';
+  document.getElementById('username').value='';
+  document.getElementById('password').value='';
+  document.getElementById('login-error').textContent='';
 }
 
+// ===================== APP =====================
 function buildApp() {
-  document.getElementById('sidebar-user').textContent = currentUser.name;
-  document.getElementById('sidebar-role').textContent =
-    currentUser.role==='teacher' ? 'TEACHER' : currentUser.role==='student' ? 'STUDENT' : 'PARENT';
+  document.getElementById('sidebar-user').textContent=currentUser.name;
+  const roleLabel = {teacher:'TEACHER',student:'STUDENT',parent:'PARENT',admin:'ADMIN'};
+  document.getElementById('sidebar-role').textContent=roleLabel[currentUser.role]||'';
 
-  const nav = document.getElementById('sidebar-nav');
-  const main = document.getElementById('main-content');
+  const nav=document.getElementById('sidebar-nav');
+  const main=document.getElementById('main-content');
 
-  if (currentUser.role === 'teacher') {
-    nav.innerHTML = `
+  if (currentUser.role==='admin') {
+    nav.innerHTML=`
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="showPage('admin-dashboard')" data-page="admin-dashboard"><span class="ni">📊</span> Dashboard</div>
+      <div class="nav-section">Manage</div>
+      <div class="nav-item" onclick="showPage('admin-teachers')" data-page="admin-teachers"><span class="ni">👨‍🏫</span> Teachers</div>
+      <div class="nav-item" onclick="showPage('admin-students')" data-page="admin-students"><span class="ni">👥</span> Students</div>
+      <div class="nav-item" onclick="showPage('admin-classes')" data-page="admin-classes"><span class="ni">🏫</span> Classes</div>
+      <div class="nav-item" onclick="showPage('admin-schedule')" data-page="admin-schedule"><span class="ni">📅</span> Schedule</div>
+    `;
+    main.innerHTML = buildAdminDashboard()+buildAdminTeachers()+buildAdminStudents()+buildAdminClasses()+buildAdminSchedule();
+    showPage('admin-dashboard');
+  } else if (currentUser.role==='teacher') {
+    selectedClass = (currentUser.classes||[])[0]||null;
+    nav.innerHTML=`
       <div class="nav-section">Overview</div>
       <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard"><span class="ni">📊</span> Dashboard</div>
       <div class="nav-section">Teaching</div>
@@ -610,207 +358,157 @@ function buildApp() {
       <div class="nav-item" onclick="showPage('students')" data-page="students"><span class="ni">👥</span> Students</div>
       <div class="nav-item" onclick="showPage('notify')" data-page="notify"><span class="ni">🔔</span> Notifications</div>
     `;
-    main.innerHTML = buildDashboard() + buildGradesPage() + buildAttendancePage() + buildStudentsPage() + buildNotifyPage();
-    selectedClass = currentUser.classes[0];
+    main.innerHTML=buildDashboard()+buildGradesPage()+buildAttendancePage()+buildStudentsPage()+buildNotifyPage();
     refreshGradesTable();
     refreshAttTable();
+    showPage('dashboard');
   } else {
-    nav.innerHTML = `
+    nav.innerHTML=`
       <div class="nav-section">Diary</div>
       <div class="nav-item active" onclick="showPage('diary')" data-page="diary"><span class="ni">📖</span> My Diary</div>
       <div class="nav-item" onclick="showPage('my-grades')" data-page="my-grades"><span class="ni">⭐</span> My Grades</div>
     `;
-    main.innerHTML = buildDiaryPage() + buildMyGradesPage();
+    main.innerHTML=buildDiaryPage()+buildMyGradesPage();
     renderDiary();
     renderMyGrades();
+    showPage('diary');
   }
-  showPage(currentUser.role === 'teacher' ? 'dashboard' : 'diary');
 }
 
 function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (id === 'dashboard') {
-    const old = document.getElementById('page-dashboard');
-    if (old) old.outerHTML = buildDashboard();
-  }
-  if (id === 'students') {
-    const old = document.getElementById('page-students');
-    if (old) old.outerHTML = buildStudentsPage();
-  }
-  if (id === 'notify') {
-    const old = document.getElementById('page-notify');
-    if (old) old.outerHTML = buildNotifyPage();
-  }
-  const pg = document.getElementById('page-' + id);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  // Rebuild dynamic pages
+  const rebuilds = {
+    'dashboard': ()=>{ const o=document.getElementById('page-dashboard'); if(o) o.outerHTML=buildDashboard(); },
+    'students':  ()=>{ const o=document.getElementById('page-students');  if(o) o.outerHTML=buildStudentsPage(); },
+    'notify':    ()=>{ const o=document.getElementById('page-notify');    if(o) o.outerHTML=buildNotifyPage(); },
+    'admin-dashboard': ()=>{ const o=document.getElementById('page-admin-dashboard'); if(o) o.outerHTML=buildAdminDashboard(); },
+    'admin-teachers':  ()=>{ const o=document.getElementById('page-admin-teachers');  if(o) o.outerHTML=buildAdminTeachers(); },
+    'admin-students':  ()=>{ const o=document.getElementById('page-admin-students');  if(o) o.outerHTML=buildAdminStudents(); },
+    'admin-classes':   ()=>{ const o=document.getElementById('page-admin-classes');   if(o) o.outerHTML=buildAdminClasses(); },
+    'admin-schedule':  ()=>{ const o=document.getElementById('page-admin-schedule');  if(o) o.outerHTML=buildAdminSchedule(); },
+  };
+  if (rebuilds[id]) rebuilds[id]();
+  const pg=document.getElementById('page-'+id);
   if (pg) pg.classList.add('active');
-  document.querySelectorAll(`[data-page="${id}"]`).forEach(n => n.classList.add('active'));
+  document.querySelectorAll(`[data-page="${id}"]`).forEach(n=>n.classList.add('active'));
 }
 
-function refreshDashboard() {
-  const today = getTodayStr();
-  let absentCount = 0;
-  currentUser.classes.forEach(cls => {
-    if (ATTENDANCE[cls] && ATTENDANCE[cls][today]) {
-      Object.values(ATTENDANCE[cls][today]).forEach(v => { if (v==='absent') absentCount++; });
-    }
-  });
-  document.getElementById('dash-absent-count').textContent = absentCount;
-  document.getElementById('dash-table-body').innerHTML = currentUser.classes.map(cls => {
-    const sts = CLASSES[cls] || [];
-    const abs = ATTENDANCE[cls]?.[today] ? Object.values(ATTENDANCE[cls][today]).filter(v=>v==='absent').length : 0;
-    return `<tr>
-      <td><b>${cls}</b></td>
-      <td>${sts.length} students</td>
-      <td>${abs > 0 ? `<span class="badge badge-absent">${abs} absent</span>` : '<span class="badge badge-present">All present</span>'}</td>
-    </tr>`;
-  }).join('');
-}
-
-function refreshStudentsPage() {
-  const today = getTodayStr();
-  currentUser.classes.forEach(cls => {
-    const tbody = document.getElementById('students-tbody-' + cls);
-    if (!tbody) return;
-    tbody.innerHTML = (CLASSES[cls]||[]).map(st => {
-      const att = ATTENDANCE[cls]?.[today]?.[st] || null;
-      return `<tr>
-        <td><div class="td-flex"><div class="avatar av-purple">${st.split(' ').map(w=>w[0]).join('')}</div>${st}</div></td>
-        <td>${att ? `<span class="badge badge-${att}">${att==='present'?'Present':att==='absent'?'Absent':'Late'}</span>` : '<span style="color:var(--text3);font-size:12px;">—</span>'}</td>
-      </tr>`;
-    }).join('');
-  });
-}
-
-function refreshNotifyPage() {
-  const today = getTodayStr();
-  let notifs = [];
-  (currentUser.classes || []).forEach(cls => {
-    const att = ATTENDANCE[cls]?.[today] || {};
-    Object.entries(att).forEach(([st, v]) => {
-      if (v === 'absent') notifs.push({ color:'var(--red)',   text:`${st} was absent today. A notification has been sent to their parent.`, time:'Today' });
-      if (v === 'late')   notifs.push({ color:'var(--amber)', text:`${st} arrived late to class today.`, time:'Today' });
-    });
-  });
-  if (!notifs.length) notifs.push({ color:'var(--green)', text:'All parents are up to date. No important notifications at this time.', time:'' });
-  const el = document.getElementById('notify-list');
-  if (el) el.innerHTML = notifs.map(n => `
-    <div class="notif">
-      <div class="notif-dot" style="background:${n.color}"></div>
-      <div><div class="notif-text">${n.text}</div>${n.time ? `<div class="notif-time">${n.time}</div>` : ''}</div>
-    </div>
-  `).join('');
-}
-
+// ===================== TEACHER - DASHBOARD =====================
 function buildDashboard() {
-  const today = getTodayStr();
-  let absentCount = 0;
-  currentUser.classes.forEach(cls => {
-    if (ATTENDANCE[cls] && ATTENDANCE[cls][today]) {
-      Object.values(ATTENDANCE[cls][today]).forEach(v => { if (v==='absent') absentCount++; });
-    }
+  const today=getTodayStr();
+  let absent=0;
+  (currentUser.classes||[]).forEach(cls=>{
+    if(ATTENDANCE[cls]&&ATTENDANCE[cls][today]) Object.values(ATTENDANCE[cls][today]).forEach(v=>{if(v==='absent')absent++;});
   });
-  const totalStudents = currentUser.classes.reduce((s,cls) => s + (CLASSES[cls]||[]).length, 0);
-
+  const total=(currentUser.classes||[]).reduce((s,cls)=>s+(DB.classes[cls]||[]).length,0);
   return `<div class="page" id="page-dashboard">
     <div class="page-title">Dashboard</div>
     <div class="page-sub">${currentUser.name} &middot; ${currentUser.subject}</div>
     <div class="stats-row">
-      <div class="stat-card accent">
-        <div class="sc-label">My Classes</div>
-        <div class="sc-val">${currentUser.classes.length}</div>
-        <div class="sc-sub">${currentUser.classes.join(', ')}</div>
-      </div>
-      <div class="stat-card">
-        <div class="sc-label">Total Students</div>
-        <div class="sc-val">${totalStudents}</div>
-        <div class="sc-sub">Across all classes</div>
-      </div>
-      <div class="stat-card red">
-        <div class="sc-label">Absent Today</div>
-        <div class="sc-val" id="dash-absent-count">0</div>
-        <div class="sc-sub">Students</div>
-      </div>
+      <div class="stat-card accent"><div class="sc-label">My Classes</div><div class="sc-val">${(currentUser.classes||[]).length}</div><div class="sc-sub">${(currentUser.classes||[]).join(', ')}</div></div>
+      <div class="stat-card"><div class="sc-label">Total Students</div><div class="sc-val">${total}</div><div class="sc-sub">Across all classes</div></div>
+      <div class="stat-card red"><div class="sc-label">Absent Today</div><div class="sc-val">${absent}</div><div class="sc-sub">Students</div></div>
     </div>
     <div class="table-card">
       <div class="table-header"><h3>My Classes</h3></div>
-      <table>
-        <thead><tr><th>Class</th><th>Students</th><th>Absent Today</th></tr></thead>
-        <tbody id="dash-table-body"></tbody>
-      </table>
+      <table><thead><tr><th>Class</th><th>Students</th><th>Absent Today</th></tr></thead><tbody>
+        ${(currentUser.classes||[]).map(cls=>{
+          const sts=DB.classes[cls]||[];
+          const abs=ATTENDANCE[cls]&&ATTENDANCE[cls][today]?Object.values(ATTENDANCE[cls][today]).filter(v=>v==='absent').length:0;
+          return `<tr><td><b>${cls}</b></td><td>${sts.length} students</td><td>${abs>0?`<span class="badge badge-absent">${abs} absent</span>`:'<span class="badge badge-present">All present</span>'}</td></tr>`;
+        }).join('')}
+      </tbody></table>
     </div>
   </div>`;
 }
 
-function getSubjects() {
-  return currentUser.subject.split('&').map(s => s.trim());
-}
-
+// ===================== TEACHER - GRADES =====================
 function buildGradesPage() {
-  const subjects = getSubjects();
-  const subjectSelect = subjects.length > 1
-    ? `<label>Subject:</label>
-       <select id="grade-subject-select" onchange="selectedSubject=this.value;refreshGradesTable()">
-         ${subjects.map(s => `<option value="${s}">${s}</option>`).join('')}
-       </select>`
-    : '';
+  const subjects=getSubjects();
+  const subSel=subjects.length>1?`<label>Subject:</label>
+    <select id="grade-subject-select" onchange="selectedSubject=this.value;refreshGradesTable()">
+      ${subjects.map(s=>`<option value="${s}">${s}</option>`).join('')}
+    </select>`:'';
   return `<div class="page" id="page-grades">
     <div class="page-title">Grades</div>
     <div class="page-sub">Enter grades per lesson</div>
     <div class="select-row">
       <label>Class:</label>
       <select onchange="selectedClass=this.value;refreshGradesTable()">
-        ${currentUser.classes.map(c => `<option value="${c}">${c}</option>`).join('')}
+        ${(currentUser.classes||[]).map(c=>`<option value="${c}">${c}</option>`).join('')}
       </select>
       <label>Date:</label>
-      <input type="date" id="grade-date" value="${getTodayStr()}" onchange="selectedDate=this.value;refreshGradesTable()" style="padding:7px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;outline:none;">
-      ${subjectSelect}
+      <input type="date" value="${getTodayStr()}" onchange="selectedDate=this.value;refreshGradesTable()" style="padding:7px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;outline:none;">
+      ${subSel}
+    </div>
+    <div class="table-card" style="margin-bottom:16px;">
+      <div class="table-header"><h3>Lesson Info</h3></div>
+      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <label style="font-size:13px;color:var(--text2);min-width:130px;">Topic covered:</label>
+          <input id="lesson-topic" style="flex:1;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="What was covered today...">
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <label style="font-size:13px;color:var(--text2);min-width:130px;">Homework:</label>
+          <input id="lesson-homework" style="flex:1;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="Homework assignment...">
+        </div>
+      </div>
     </div>
     <div class="table-card">
-      <div class="table-header"><h3 id="grades-table-title">Grades</h3><button class="btn btn-primary" onclick="saveGrades()">✓ Save</button></div>
-      <div class="grade-table-wrap">
-        <table id="grades-table"></table>
-      </div>
+      <div class="table-header"><h3 id="grades-table-title">Grades</h3><button class="btn btn-primary" onclick="doSaveGrades()">✓ Save</button></div>
+      <div style="overflow-x:auto;"><table id="grades-table"></table></div>
     </div>
   </div>`;
 }
 
 function refreshGradesTable() {
-  const cls = selectedClass;
-  const date = selectedDate || getTodayStr();
-  const students = CLASSES[cls] || [];
-  const subj = selectedSubject || getSubjects()[0];
-  document.getElementById('grades-table-title').textContent = `${cls} · ${subj} · ${formatDate(date)}`;
-  document.getElementById('grades-table').innerHTML = `
-    <thead><tr><th>Student</th><th>Grade (1–5)</th><th>Note</th></tr></thead>
-    <tbody>
-      ${students.map((st,i) => {
-        const g = GRADES[cls]?.[st]?.[subj]?.[date] || '';
-        return `<tr>
-          <td><div class="td-flex"><div class="avatar av-blue">${st.split(' ').map(w=>w[0]).join('')}</div>${st}</div></td>
-          <td><input class="grade-input" type="number" min="1" max="10" value="${g}" id="gi-${i}" placeholder="—"></td>
-          <td><input style="width:180px;padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:inherit;outline:none;" placeholder="Optional note..." id="note-${i}"></td>
-        </tr>`;
-      }).join('')}
-    </tbody>
-  `;
+  const cls=selectedClass;
+  const date=selectedDate||getTodayStr();
+  const subj=selectedSubject||getSubjects()[0]||'';
+  const students=DB.classes[cls]||[];
+  const el=document.getElementById('grades-table-title');
+  if(el) el.textContent=`${cls} · ${subj} · ${formatDate(date)}`;
+  const li=LESSON_INFO[cls]&&LESSON_INFO[cls][subj]&&LESSON_INFO[cls][subj][date]?LESSON_INFO[cls][subj][date]:{};
+  const tEl=document.getElementById('lesson-topic');
+  const hEl=document.getElementById('lesson-homework');
+  if(tEl) tEl.value=li.topic||'';
+  if(hEl) hEl.value=li.homework||'';
+  const tbl=document.getElementById('grades-table');
+  if(!tbl) return;
+  tbl.innerHTML=`<thead><tr><th>Student</th><th>Grade (1-10)</th></tr></thead><tbody>
+    ${students.map((st,i)=>{
+      const g=GRADES[cls]&&GRADES[cls][st]&&GRADES[cls][st][subj]&&GRADES[cls][st][subj][date]?GRADES[cls][st][subj][date]:'';
+      return `<tr><td><div class="td-flex"><div class="avatar av-blue">${initials(st)}</div>${st}</div></td>
+        <td><input class="grade-input" type="number" min="1" max="10" value="${g}" id="gi-${i}" placeholder="—"></td></tr>`;
+    }).join('')}
+  </tbody>`;
 }
 
-function saveGrades() {
-  const cls = selectedClass;
-  const date = selectedDate || getTodayStr();
-  const subj = selectedSubject || getSubjects()[0];
-  (CLASSES[cls]||[]).forEach((st,i) => {
-    const v = document.getElementById('gi-'+i)?.value;
-    if (v && v >= 1 && v <= 10) {
-      if (!GRADES[cls][st][subj]) GRADES[cls][st][subj] = {};
-      GRADES[cls][st][subj][date] = parseInt(v);
+async function doSaveGrades() {
+  const cls=selectedClass;
+  const date=selectedDate||getTodayStr();
+  const subj=selectedSubject||getSubjects()[0]||'';
+  if(!GRADES[cls]) GRADES[cls]={};
+  (DB.classes[cls]||[]).forEach((st,i)=>{
+    const v=document.getElementById('gi-'+i)?.value;
+    if(v&&v>=1&&v<=10){
+      if(!GRADES[cls][st]) GRADES[cls][st]={};
+      if(!GRADES[cls][st][subj]) GRADES[cls][st][subj]={};
+      GRADES[cls][st][subj][date]=parseInt(v);
     }
   });
-  persistGrades();
+  const topic=document.getElementById('lesson-topic')?.value||'';
+  const hw=document.getElementById('lesson-homework')?.value||'';
+  if(!LESSON_INFO[cls]) LESSON_INFO[cls]={};
+  if(!LESSON_INFO[cls][subj]) LESSON_INFO[cls][subj]={};
+  LESSON_INFO[cls][subj][date]={topic,homework:hw};
+  await saveGradesDB();
   flashSave();
 }
 
+// ===================== TEACHER - ATTENDANCE =====================
 function buildAttendancePage() {
   return `<div class="page" id="page-attendance">
     <div class="page-title">Attendance</div>
@@ -818,228 +516,186 @@ function buildAttendancePage() {
     <div class="select-row">
       <label>Class:</label>
       <select onchange="selectedClass=this.value;refreshAttTable()">
-        ${currentUser.classes.map(c => `<option value="${c}">${c}</option>`).join('')}
+        ${(currentUser.classes||[]).map(c=>`<option value="${c}">${c}</option>`).join('')}
       </select>
       <label>Date:</label>
       <input type="date" value="${getTodayStr()}" onchange="selectedDate=this.value;refreshAttTable()" style="padding:7px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;outline:none;">
     </div>
     <div class="table-card">
-      <div class="table-header"><h3>Attendance</h3><button class="btn btn-primary" onclick="flashSave()">✓ Save</button></div>
+      <div class="table-header"><h3>Attendance</h3><button class="btn btn-primary" onclick="saveAttendance()">✓ Save</button></div>
       <table id="att-table"></table>
     </div>
   </div>`;
 }
 
 function refreshAttTable() {
-  const cls = selectedClass;
-  const date = selectedDate || getTodayStr();
-  const students = CLASSES[cls] || [];
-  if (!ATTENDANCE[cls][date]) ATTENDANCE[cls][date] = {};
-  students.forEach(st => { if (!ATTENDANCE[cls][date][st]) ATTENDANCE[cls][date][st] = 'present'; });
-  document.getElementById('att-table').innerHTML = `
-    <thead><tr><th>Student</th><th>Status</th></tr></thead>
-    <tbody>
-      ${students.map(st => {
-        const att = ATTENDANCE[cls][date][st];
-        const btn = (val, label, clr) => {
-          const active = att === val;
-          const styles = active
-            ? `background:rgba(${clr},0.15);color:${val==='present'?'#4ade80':val==='absent'?'#f87171':'#fbbf24'};border:1px solid rgba(${clr},0.3);`
-            : `background:var(--surface2);color:var(--text2);border:1px solid var(--border);`;
-          return `<button class="att-btn" onclick="setAtt('${cls}','${date}','${st}','${val}')" style="${styles}">${label}</button>`;
-        };
-        return `<tr>
-          <td><div class="td-flex"><div class="avatar av-blue">${st.split(' ').map(w=>w[0]).join('')}</div>${st}</div></td>
-          <td>
-            ${btn('present','Present','34,197,94')}
-            ${btn('absent','Absent','239,68,68')}
-            ${btn('late','Late','245,158,11')}
-          </td>
-        </tr>`;
-      }).join('')}
-    </tbody>
-  `;
+  const cls=selectedClass;
+  const date=selectedDate||getTodayStr();
+  const students=DB.classes[cls]||[];
+  if(!ATTENDANCE[cls]) ATTENDANCE[cls]={};
+  if(!ATTENDANCE[cls][date]) ATTENDANCE[cls][date]={};
+  const tbl=document.getElementById('att-table');
+  if(!tbl) return;
+  tbl.innerHTML=`<thead><tr><th>Student</th><th>Status</th></tr></thead><tbody>
+    ${students.map(st=>{
+      const att=ATTENDANCE[cls][date][st]||null;
+      const btn=(val,label,clr,txtclr)=>{
+        const active=att===val;
+        const s=active?`background:rgba(${clr},0.15);color:${txtclr};border:1px solid rgba(${clr},0.3);`:`background:var(--surface2);color:var(--text2);border:1px solid var(--border);`;
+        return `<button class="att-btn" onclick="setAtt('${cls}','${date}','${st}','${val}')" style="${s}">${label}</button>`;
+      };
+      return `<tr><td><div class="td-flex"><div class="avatar av-blue">${initials(st)}</div>${st}</div></td>
+        <td>${btn('present','Present','34,197,94','#4ade80')}${btn('absent','Absent','239,68,68','#f87171')}${btn('late','Late','245,158,11','#fbbf24')}</td></tr>`;
+    }).join('')}
+  </tbody>`;
 }
 
-function setAtt(cls, date, st, val) {
-  if (!ATTENDANCE[cls][date]) ATTENDANCE[cls][date] = {};
-  ATTENDANCE[cls][date][st] = val;
-  persistAttendance();
+async function setAtt(cls,date,st,val) {
+  if(!ATTENDANCE[cls]) ATTENDANCE[cls]={};
+  if(!ATTENDANCE[cls][date]) ATTENDANCE[cls][date]={};
+  ATTENDANCE[cls][date][st]=val;
   refreshAttTable();
-  refreshDashboard();
-  refreshStudentsPage();
-  refreshNotifyPage();
   flashSave();
 }
 
+async function saveAttendance() {
+  await saveAttDB();
+  flashSave();
+}
+
+// ===================== TEACHER - STUDENTS =====================
 function buildStudentsPage() {
   return `<div class="page" id="page-students">
     <div class="page-title">Students</div>
     <div class="page-sub">Students in my classes</div>
-    ${currentUser.classes.map(cls => `
+    ${(currentUser.classes||[]).map(cls=>`
       <div class="table-card">
-        <div class="table-header"><h3>${cls} &mdash; ${(CLASSES[cls]||[]).length} students</h3></div>
-        <table>
-          <thead><tr><th>Student</th><th>Today</th></tr></thead>
-          <tbody id="students-tbody-${cls}">
-            ${(CLASSES[cls]||[]).map(st => {
-              const today = getTodayStr();
-              const att = ATTENDANCE[cls]?.[today]?.[st] || null;
-              return `<tr>
-                <td><div class="td-flex"><div class="avatar av-purple">${st.split(' ').map(w=>w[0]).join('')}</div>${st}</div></td>
-                <td>${att ? `<span class="badge badge-${att}">${att==='present'?'Present':att==='absent'?'Absent':'Late'}</span>` : '<span style="color:var(--text3);font-size:12px;">—</span>'}</td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-    `).join('')}
+        <div class="table-header"><h3>${cls} — ${(DB.classes[cls]||[]).length} students</h3></div>
+        <table><thead><tr><th>Student</th><th>Today</th></tr></thead><tbody>
+          ${(DB.classes[cls]||[]).map(st=>{
+            const att=ATTENDANCE[cls]&&ATTENDANCE[cls][getTodayStr()]?ATTENDANCE[cls][getTodayStr()][st]:null;
+            return `<tr><td><div class="td-flex"><div class="avatar av-purple">${initials(st)}</div>${st}</div></td>
+              <td>${att?`<span class="badge badge-${att}">${att==='present'?'Present':att==='absent'?'Absent':'Late'}</span>`:'<span style="color:var(--text3);font-size:12px;">—</span>'}</td></tr>`;
+          }).join('')}
+        </tbody></table>
+      </div>`).join('')}
   </div>`;
 }
 
+// ===================== TEACHER - NOTIFICATIONS =====================
 function buildNotifyPage() {
-  const today = getTodayStr();
-  let notifs = [];
-  (currentUser.classes || []).forEach(cls => {
-    const att = ATTENDANCE[cls]?.[today] || {};
-    Object.entries(att).forEach(([st, v]) => {
-      if (v === 'absent') notifs.push({ color:'var(--red)',   text:`${st} was absent today. A notification has been sent to their parent.`, time:'Today' });
-      if (v === 'late')   notifs.push({ color:'var(--amber)', text:`${st} arrived late to class today.`, time:'Today' });
-    });
-    (CLASSES[cls]||[]).forEach(st => {
-      const gs = Object.values(GRADES[cls]?.[st]||{}).flatMap(s => Object.values(s));
-      if (gs.length) {
-        const avg = gs.reduce((a,b)=>a+b,0)/gs.length;
-        if (avg < 3.5) notifs.push({ color:'var(--amber)', text:`${st}'s average grade is low (${avg.toFixed(1)}). Send a notification to their parent?`, time:'This term' });
-      }
+  const today=getTodayStr();
+  let notifs=[];
+  (currentUser.classes||[]).forEach(cls=>{
+    const att=ATTENDANCE[cls]&&ATTENDANCE[cls][today]?ATTENDANCE[cls][today]:{};
+    Object.entries(att).forEach(([st,v])=>{
+      if(v==='absent') notifs.push({color:'var(--red)',text:`${st} was absent today.`,time:'Today'});
+      if(v==='late') notifs.push({color:'var(--amber)',text:`${st} arrived late.`,time:'Today'});
     });
   });
-  if (!notifs.length) notifs.push({ color:'var(--green)', text:'All parents are up to date. No important notifications at this time.', time:'' });
+  if(!notifs.length) notifs.push({color:'var(--green)',text:'No notifications. All students present.',time:''});
   return `<div class="page" id="page-notify">
     <div class="page-title">Notifications</div>
     <div class="page-sub">Automatic parent notifications</div>
-    <div id="notify-list">
-    ${notifs.map(n => `
-      <div class="notif">
-        <div class="notif-dot" style="background:${n.color}"></div>
-        <div><div class="notif-text">${n.text}</div>${n.time ? `<div class="notif-time">${n.time}</div>` : ''}</div>
-      </div>
-    `).join('')}
+    ${notifs.map(n=>`<div class="notif"><div class="notif-dot" style="background:${n.color}"></div>
+      <div><div class="notif-text">${n.text}</div>${n.time?`<div class="notif-time">${n.time}</div>`:''}</div></div>`).join('')}
   </div>`;
 }
 
+// ===================== STUDENT/PARENT - DIARY =====================
 function buildDiaryPage() {
-  const now = new Date();
-  const monthOptions = [];
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), i, 1);
-    monthOptions.push(`<option value="${now.getFullYear()}-${String(i+1).padStart(2,'0')}" ${i===now.getMonth()?'selected':''}>${MONTHS[i]} ${now.getFullYear()}</option>`);
+  const now=new Date();
+  const opts=[];
+  for(let i=0;i<12;i++){
+    const y=now.getFullYear(), m=i;
+    const val=`${y}-${String(i+1).padStart(2,'0')}`;
+    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    opts.push(`<option value="${val}" ${i===now.getMonth()?'selected':''}>${months[i]} ${y}</option>`);
   }
   return `<div class="page" id="page-diary">
     <div class="page-title">📖 My Diary</div>
     <div class="page-sub" id="diary-sub"></div>
     <div class="select-row" style="margin-bottom:24px;">
       <label>Month:</label>
-      <select id="diary-month-select" onchange="renderDiaryMonth()">
-        ${monthOptions.join('')}
-      </select>
+      <select id="diary-month-select" onchange="renderDiaryMonth()">${opts.join('')}</select>
     </div>
     <div id="diary-content"></div>
   </div>`;
 }
 
 function renderDiary() {
-  const studentName = currentUser.role==='parent' ? currentUser.studentName : currentUser.name;
-  const cls = currentUser.role==='parent' ? currentUser.studentClass : currentUser.class;
-  document.getElementById('diary-sub').textContent = `${studentName} · Class ${cls}`;
-  window._diaryClass = cls;
-  window._diaryStudentName = studentName;
+  const studentName=currentUser.role==='parent'?currentUser.studentName:currentUser.name;
+  const cls=currentUser.role==='parent'?currentUser.studentClass:currentUser.class;
+  document.getElementById('diary-sub').textContent=`${studentName} · Class ${cls}`;
+  window._diaryStudent=studentName;
+  window._diaryCls=cls;
   renderDiaryMonth();
 }
 
 function renderDiaryMonth() {
-  const cls = window._diaryClass;
-  const studentName = window._diaryStudentName;
-  const val = document.getElementById('diary-month-select').value;
-  const [year, month] = val.split('-').map(Number);
-
-  // Get all Mon-Fri days of the month
-  const allDays = [];
-  const d = new Date(year, month - 1, 1);
-  while (d.getMonth() === month - 1) {
-    const dow = d.getDay();
-    if (dow >= 1 && dow <= 5) allDays.push(new Date(d));
-    d.setDate(d.getDate() + 1);
+  const cls=window._diaryCls;
+  const studentName=window._diaryStudent;
+  const val=document.getElementById('diary-month-select').value;
+  const [year,month]=val.split('-').map(Number);
+  const allDays=[];
+  const d=new Date(year,month-1,1);
+  while(d.getMonth()===month-1){
+    if(d.getDay()>=1&&d.getDay()<=5) allDays.push(new Date(d));
+    d.setDate(d.getDate()+1);
   }
-
-  // Group into weeks (Mon-Fri)
-  const weeks = [];
-  let week = [];
-  allDays.forEach(day => {
-    if (day.getDay() === 1 && week.length > 0) {
-      weeks.push(week);
-      week = [];
-    }
+  const weeks=[];
+  let week=[];
+  allDays.forEach(day=>{
+    if(day.getDay()===1&&week.length>0){weeks.push(week);week=[];}
     week.push(day);
   });
-  if (week.length > 0) weeks.push(week);
+  if(week.length>0) weeks.push(week);
 
-  const dayKeyMap = {1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri'};
+  const dayKeyMap={1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri'};
+  const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  document.getElementById('diary-content').innerHTML = weeks.map((wk, wi) => {
-    const wStart = wk[0];
-    const wEnd = wk[wk.length - 1];
-    const weekLabel = `${wStart.getDate()}.${String(wStart.getMonth()+1).padStart(2,'0')}.${wStart.getFullYear()} – ${wEnd.getDate()}.${String(wEnd.getMonth()+1).padStart(2,'0')}.${wEnd.getFullYear()}`;
-
-    const daysHtml = wk.map(day => {
-      const dateStr = (() => {
-        const year = day.getFullYear();
-        const month = String(day.getMonth()+1).padStart(2,'0');
-        const d2 = String(day.getDate()).padStart(2,'0');
-        return `${year}-${month}-${d2}`;
-      })();
-      const dk = dayKeyMap[day.getDay()];
-      const schedule = CLASS_SCHEDULE[cls]?.[dk] || [];
-      const att = ATTENDANCE[cls]?.[dateStr] || {};
-      const attVal = att[studentName] || null;
-
-      return `
-        <div style="margin-bottom:12px;">
-          <div style="font-size:12px;font-weight:500;color:var(--text2);padding:8px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;">
-            ${DAY_NAMES_LONG[day.getDay()-1]}, ${day.getDate()} ${MONTHS[day.getMonth()]}
-            ${attVal ? `<span class="badge badge-${attVal}" style="margin-left:10px;">${attVal==='present'?'Present':attVal==='absent'?'Absent':'Late'}</span>` : ''}
-          </div>
-          <table style="width:100%;border-collapse:collapse;">
-            <thead>
-              <tr>
-                <th style="padding:4px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:500;width:28px;">#</th>
-                <th style="padding:4px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:500;">Subject</th>
-                <th style="padding:4px 10px;text-align:center;font-size:10px;color:var(--text3);font-weight:500;">Grade</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${schedule.map((lesson, i) => {
-                const g = GRADES[cls]?.[studentName]?.[lesson.sub]?.[dateStr];
-                return `<tr style="${i%2===0?'background:var(--surface2)':''}">
-                  <td style="padding:6px 10px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${i+1}</td>
-                  <td style="padding:6px 10px;font-size:13px;font-weight:500;">${lesson.sub}</td>
-                  <td style="padding:6px 10px;text-align:center;">${g ? `<span class="badge badge-${g}">${g}</span>` : '<span style="color:var(--text3);font-size:12px;">—</span>'}</td>
-                </tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>`;
-    }).join('');
-
-    return `
-      <div class="table-card" style="margin-bottom:20px;">
-        <div class="table-header">
-          <h3>Week ${wi+1} &nbsp;<span style="font-weight:400;color:var(--text2);font-size:13px;">${weekLabel}</span></h3>
+  document.getElementById('diary-content').innerHTML=weeks.map((wk,wi)=>{
+    const wStart=wk[0],wEnd=wk[wk.length-1];
+    const weekLabel=`${wStart.getDate()}.${String(wStart.getMonth()+1).padStart(2,'0')}.${wStart.getFullYear()} – ${wEnd.getDate()}.${String(wEnd.getMonth()+1).padStart(2,'0')}.${wEnd.getFullYear()}`;
+    const daysHtml=wk.map(day=>{
+      const dateStr=dateToStr(day);
+      const dk=dayKeyMap[day.getDay()];
+      const schedule=(DB.schedule[cls]&&DB.schedule[cls][dk])||[];
+      const att=ATTENDANCE[cls]&&ATTENDANCE[cls][dateStr]?ATTENDANCE[cls][dateStr][studentName]:null;
+      return `<div style="margin-bottom:14px;">
+        <div class="diary-day-header">
+          <span>${dayNames[day.getDay()-1]}, ${day.getDate()} ${months[day.getMonth()]}</span>
+          ${att?`<span class="badge badge-${att}">${att==='present'?'Present':att==='absent'?'Absent':'Late'}</span>`:''}
         </div>
-        <div style="padding:16px 20px;">
-          ${daysHtml}
-        </div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr>
+            <th style="padding:4px 10px;font-size:10px;color:var(--text3);font-weight:500;width:28px;">#</th>
+            <th style="padding:4px 10px;font-size:10px;color:var(--text3);font-weight:500;">Subject</th>
+            <th style="padding:4px 10px;text-align:center;font-size:10px;color:var(--text3);font-weight:500;">Grade</th>
+          </tr></thead>
+          <tbody>
+            ${schedule.length?schedule.map((lesson,i)=>{
+              const g=GRADES[cls]&&GRADES[cls][studentName]&&GRADES[cls][studentName][lesson.sub]?GRADES[cls][studentName][lesson.sub][dateStr]:'';
+              const info=LESSON_INFO[cls]&&LESSON_INFO[cls][lesson.sub]&&LESSON_INFO[cls][lesson.sub][dateStr]?LESSON_INFO[cls][lesson.sub][dateStr]:{};
+              return `<tr style="${i%2===0?'background:var(--surface2)':''}">
+                <td style="padding:5px 10px;font-size:11px;color:var(--text3);">${i+1}</td>
+                <td style="padding:5px 10px;">
+                  <div style="font-size:13px;font-weight:500;">${lesson.sub}</div>
+                  ${info.topic?`<div style="font-size:11px;color:var(--text2);margin-top:1px;">📖 ${info.topic}</div>`:''}
+                  ${info.homework?`<div style="font-size:11px;color:var(--amber);margin-top:1px;">✏️ ${info.homework}</div>`:''}
+                </td>
+                <td style="padding:5px 10px;text-align:center;">${g?`<span class="badge badge-${g}">${g}</span>`:'<span style="color:var(--text3);font-size:12px;">—</span>'}</td>
+              </tr>`;
+            }).join(''):`<tr><td colspan="3" style="padding:12px 10px;font-size:12px;color:var(--text3);text-align:center;">No lessons scheduled</td></tr>`}
+          </tbody>
+        </table>
       </div>`;
+    }).join('');
+    return `<div class="table-card" style="margin-bottom:20px;">
+      <div class="table-header"><h3>Week ${wi+1} <span style="font-weight:400;color:var(--text2);font-size:13px;">${weekLabel}</span></h3></div>
+      <div style="padding:16px 20px;">${daysHtml}</div>
+    </div>`;
   }).join('');
 }
 
@@ -1052,45 +708,373 @@ function buildMyGradesPage() {
 }
 
 function renderMyGrades() {
-  const studentName = currentUser.role==='parent' ? currentUser.studentName : currentUser.name;
-  const cls = currentUser.role==='parent' ? currentUser.studentClass : currentUser.class;
-  const subjectGrades = GRADES[cls]?.[studentName] || {};
-
-  if (!Object.keys(subjectGrades).length) {
-    document.getElementById('my-grades-content').innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3);">No grades recorded yet.</div>`;
+  const studentName=currentUser.role==='parent'?currentUser.studentName:currentUser.name;
+  const cls=currentUser.role==='parent'?currentUser.studentClass:currentUser.class;
+  const subjectGrades=GRADES[cls]&&GRADES[cls][studentName]?GRADES[cls][studentName]:{};
+  if(!Object.keys(subjectGrades).length){
+    document.getElementById('my-grades-content').innerHTML='<div style="text-align:center;padding:40px;color:var(--text3);">No grades recorded yet.</div>';
     return;
   }
-
-  const rows = Object.entries(subjectGrades).map(([subj, dates]) => {
-    const vals = Object.values(dates);
-    const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
-    const entries = Object.entries(dates).map(([d,g]) =>
-      `<span style="font-size:11px;color:var(--text2);margin-right:8px;">${formatDate(d)}: <span class="badge badge-${g}">${g}</span></span>`
-    ).join('');
-    return `<tr>
-      <td>${subj}</td>
-      <td>${entries}</td>
-      <td><span class="badge badge-${Math.round(parseFloat(avg))}">${avg}</span></td>
-    </tr>`;
+  const rows=Object.entries(subjectGrades).map(([subj,dates])=>{
+    const vals=Object.values(dates);
+    const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):'—';
+    const entries=Object.entries(dates).map(([d,g])=>`<span style="font-size:11px;color:var(--text2);margin-right:8px;">${formatDate(d)}: <span class="badge badge-${g}">${g}</span></span>`).join('');
+    return `<tr><td>${subj}</td><td>${entries}</td><td><span class="badge badge-${Math.round(parseFloat(avg))}">${avg}</span></td></tr>`;
   }).join('');
+  document.getElementById('my-grades-content').innerHTML=`<div class="table-card"><table>
+    <thead><tr><th>Subject</th><th>Grades</th><th>Average</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
 
-  document.getElementById('my-grades-content').innerHTML = `
-    <div class="table-card">
-      <table>
-        <thead><tr><th>Subject</th><th>Grades</th><th>Average</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+// ===================== ADMIN - DASHBOARD =====================
+function buildAdminDashboard() {
+  const teachers=Object.values(DB.users||{}).filter(u=>u.role==='teacher');
+  const students=Object.values(DB.users||{}).filter(u=>u.role==='student');
+  const classes=Object.keys(DB.classes||{});
+  return `<div class="page" id="page-admin-dashboard">
+    <div class="page-title">Admin Dashboard</div>
+    <div class="page-sub">School overview</div>
+    <div class="stats-row">
+      <div class="stat-card accent"><div class="sc-label">Teachers</div><div class="sc-val">${teachers.length}</div></div>
+      <div class="stat-card"><div class="sc-label">Students</div><div class="sc-val">${students.length}</div></div>
+      <div class="stat-card"><div class="sc-label">Classes</div><div class="sc-val">${classes.length}</div></div>
     </div>
-  `;
+    <div class="table-card">
+      <div class="table-header"><h3>Teachers</h3></div>
+      <table><thead><tr><th>Name</th><th>Subject</th><th>Classes</th></tr></thead><tbody>
+        ${teachers.map(t=>`<tr>
+          <td><div class="td-flex"><div class="avatar av-blue">${initials(t.name)}</div>${t.name}</div></td>
+          <td>${t.subject||'—'}</td>
+          <td>${(t.classes||[]).join(', ')||'—'}</td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>
+  </div>`;
 }
 
-function flashSave() {
-  const f = document.getElementById('save-flash');
-  f.classList.add('show');
-  setTimeout(() => f.classList.remove('show'), 2000);
+// ===================== ADMIN - TEACHERS =====================
+function buildAdminTeachers() {
+  const teachers=Object.entries(DB.users||{}).filter(([k,v])=>v.role==='teacher');
+  return `<div class="page" id="page-admin-teachers">
+    <div class="page-title">Teachers</div>
+    <div class="page-sub">Add or edit teachers</div>
+    <div class="form-card">
+      <h3>Add New Teacher</h3>
+      <div class="form-row">
+        <div class="form-field"><label>Full Name</label><input id="t-name" placeholder="Ani Hakobyan"></div>
+        <div class="form-field"><label>Username (email or text)</label><input id="t-user" placeholder="ani.hakobyan@school.am"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>Password</label><input id="t-pass" placeholder="Password"></div>
+        <div class="form-field"><label>Subject(s) — use & for multiple</label><input id="t-subj" placeholder="Mathematics & Physics"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>Classes (comma separated)</label><input id="t-cls" placeholder="10A, 10B, 9A"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addTeacher()">+ Add Teacher</button>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><h3>All Teachers (${teachers.length})</h3></div>
+      <table><thead><tr><th>Name</th><th>Username</th><th>Subject</th><th>Classes</th><th></th></tr></thead><tbody>
+        ${teachers.map(([key,t])=>`<tr>
+          <td><div class="td-flex"><div class="avatar av-blue">${initials(t.name)}</div>${t.name}</div></td>
+          <td style="font-size:12px;color:var(--text2);">${key.replace(/_t$/,'')}</td>
+          <td>${t.subject||'—'}</td>
+          <td>${(t.classes||[]).join(', ')||'—'}</td>
+          <td><button class="btn btn-danger" onclick="removeUser('${key}')">Remove</button></td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>
+  </div>`;
 }
 
-(async () => { await initData(); })();
+async function addTeacher() {
+  const name=document.getElementById('t-name').value.trim();
+  const user=document.getElementById('t-user').value.trim();
+  const pass=document.getElementById('t-pass').value.trim();
+  const subj=document.getElementById('t-subj').value.trim();
+  const cls=document.getElementById('t-cls').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!name||!user||!pass){alert('Name, username, and password are required.');return;}
+  const key=user+'_t';
+  if(!DB.users) DB.users={};
+  DB.users[key]={role:'teacher',name,pass,subject:subj,classes:cls};
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-teachers');
+}
+
+async function removeUser(key) {
+  if(!confirm('Are you sure?')) return;
+  delete DB.users[key];
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage(currentUser.role==='admin'?'admin-teachers':'admin-students');
+}
+
+// ===================== ADMIN - STUDENTS =====================
+function buildAdminStudents() {
+  const students=Object.entries(DB.users||{}).filter(([k,v])=>v.role==='student');
+  return `<div class="page" id="page-admin-students">
+    <div class="page-title">Students</div>
+    <div class="page-sub">Add or edit student accounts</div>
+    <div class="form-card">
+      <h3>Add New Student Account</h3>
+      <div class="form-row">
+        <div class="form-field"><label>Full Name</label><input id="s-name" placeholder="Ani Hakobyan"></div>
+        <div class="form-field"><label>Username</label><input id="s-user" placeholder="ani.hakobyan"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>Password</label><input id="s-pass" placeholder="Password"></div>
+        <div class="form-field"><label>Class</label>
+          <select id="s-cls">
+            ${Object.keys(DB.classes||{}).map(c=>`<option value="${c}">${c}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addStudent()">+ Add Student</button>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><h3>Student Accounts (${students.length})</h3></div>
+      <table><thead><tr><th>Name</th><th>Username</th><th>Class</th><th></th></tr></thead><tbody>
+        ${students.map(([key,s])=>`<tr>
+          <td><div class="td-flex"><div class="avatar av-purple">${initials(s.name)}</div>${s.name}</div></td>
+          <td style="font-size:12px;color:var(--text2);">${key}</td>
+          <td>${s.class||'—'}</td>
+          <td><button class="btn btn-danger" onclick="removeUser('${key}')">Remove</button></td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>
+  </div>`;
+}
+
+async function addStudent() {
+  const name=document.getElementById('s-name').value.trim();
+  const user=document.getElementById('s-user').value.trim();
+  const pass=document.getElementById('s-pass').value.trim();
+  const cls=document.getElementById('s-cls').value;
+  if(!name||!user||!pass){alert('All fields required.');return;}
+  if(!DB.users) DB.users={};
+  DB.users[user]={role:'student',name,pass,class:cls};
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-students');
+}
+
+// ===================== ADMIN - CLASSES =====================
+function buildAdminClasses() {
+  return `<div class="page" id="page-admin-classes">
+    <div class="page-title">Classes</div>
+    <div class="page-sub">Manage class rosters</div>
+    <div class="form-card">
+      <h3>Add New Class</h3>
+      <div class="form-row">
+        <div class="form-field"><label>Class Name</label><input id="cls-name" placeholder="10A"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addClass()">+ Add Class</button>
+    </div>
+    ${Object.entries(DB.classes||{}).map(([cls,students])=>`
+      <div class="table-card">
+        <div class="table-header">
+          <h3>${cls} — ${students.length} students</h3>
+          <div style="display:flex;gap:8px;">
+            <input id="new-st-${cls}" style="padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:inherit;outline:none;width:180px;" placeholder="Student full name">
+            <button class="btn btn-primary" onclick="addStudentToClass('${cls}')">+ Add</button>
+            <button class="btn btn-danger" onclick="deleteClass('${cls}')">Delete Class</button>
+          </div>
+        </div>
+        <table><thead><tr><th>Student</th><th></th></tr></thead><tbody>
+          ${students.map(st=>`<tr>
+            <td><div class="td-flex"><div class="avatar av-purple">${initials(st)}</div>${st}</div></td>
+            <td><button class="btn btn-danger" onclick="removeStudentFromClass('${cls}','${st}')">Remove</button></td>
+          </tr>`).join('')}
+        </tbody></table>
+      </div>`).join('')}
+  </div>`;
+}
+
+async function addClass() {
+  const name=document.getElementById('cls-name').value.trim();
+  if(!name){alert('Class name required.');return;}
+  if(!DB.classes) DB.classes={};
+  if(DB.classes[name]){alert('Class already exists.');return;}
+  DB.classes[name]=[];
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-classes');
+}
+
+async function deleteClass(cls) {
+  if(!confirm(`Delete class ${cls}?`)) return;
+  delete DB.classes[cls];
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-classes');
+}
+
+async function addStudentToClass(cls) {
+  const name=document.getElementById('new-st-'+cls).value.trim();
+  if(!name) return;
+  if(!DB.classes[cls]) DB.classes[cls]=[];
+  if(!DB.classes[cls].includes(name)) DB.classes[cls].push(name);
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-classes');
+}
+
+async function removeStudentFromClass(cls,st) {
+  DB.classes[cls]=DB.classes[cls].filter(s=>s!==st);
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-classes');
+}
+
+// ===================== ADMIN - SCHEDULE =====================
+function buildAdminSchedule() {
+  const days=['Mon','Tue','Wed','Thu','Fri'];
+  const classes=Object.keys(DB.classes||{});
+  return `<div class="page" id="page-admin-schedule">
+    <div class="page-title">Schedule</div>
+    <div class="page-sub">Manage class timetables</div>
+    <div class="select-row">
+      <label>Class:</label>
+      <select id="sched-cls-select" onchange="renderScheduleEditor()">
+        ${classes.map(c=>`<option value="${c}">${c}</option>`).join('')}
+      </select>
+      <label>Day:</label>
+      <select id="sched-day-select" onchange="renderScheduleEditor()">
+        ${days.map(d=>`<option value="${d}">${d}</option>`).join('')}
+      </select>
+    </div>
+    <div id="schedule-editor"></div>
+  </div>`;
+}
+
+function renderScheduleEditor() {
+  const cls=document.getElementById('sched-cls-select')?.value;
+  const day=document.getElementById('sched-day-select')?.value;
+  if(!cls||!day) return;
+  const lessons=(DB.schedule[cls]&&DB.schedule[cls][day])||[];
+  document.getElementById('schedule-editor').innerHTML=`
+    <div class="table-card">
+      <div class="table-header"><h3>${cls} — ${day}</h3><button class="btn btn-primary" onclick="addLesson('${cls}','${day}')">+ Add Lesson</button></div>
+      <table><thead><tr><th>#</th><th>Subject</th><th>Teacher</th><th></th></tr></thead><tbody id="sched-tbody">
+        ${lessons.map((l,i)=>`<tr>
+          <td>${i+1}</td>
+          <td>${l.sub}</td>
+          <td style="color:var(--text2);font-size:12px;">${l.teacher}</td>
+          <td><button class="btn btn-danger" onclick="removeLesson('${cls}','${day}',${i})">Remove</button></td>
+        </tr>`).join('')}
+      </tbody></table>
+      <div style="padding:16px 20px;display:flex;gap:10px;border-top:1px solid var(--border);">
+        <input id="new-sub" style="flex:1;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="Subject name">
+        <input id="new-teacher" style="flex:1;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="Teacher name">
+      </div>
+    </div>`;
+}
+
+async function addLesson(cls,day) {
+  const sub=document.getElementById('new-sub').value.trim();
+  const teacher=document.getElementById('new-teacher').value.trim();
+  if(!sub) return;
+  if(!DB.schedule) DB.schedule={};
+  if(!DB.schedule[cls]) DB.schedule[cls]={};
+  if(!DB.schedule[cls][day]) DB.schedule[cls][day]=[];
+  DB.schedule[cls][day].push({sub,teacher});
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-schedule');
+  setTimeout(()=>{
+    document.getElementById('sched-cls-select').value=cls;
+    document.getElementById('sched-day-select').value=day;
+    renderScheduleEditor();
+  },100);
+}
+
+async function removeLesson(cls,day,idx) {
+  DB.schedule[cls][day].splice(idx,1);
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-schedule');
+  setTimeout(()=>{
+    document.getElementById('sched-cls-select').value=cls;
+    document.getElementById('sched-day-select').value=day;
+    renderScheduleEditor();
+  },100);
+}
+
+// ===================== MIGRATE OLD DATA =====================
+async function migrateOldData() {
+  // If DB is empty, populate with existing hardcoded data
+  if (!DB.users || Object.keys(DB.users).length===0) {
+    DB.users = {
+      'irinamargaryan41@gmail.com_t': {pass:'Mirina2006',role:'teacher',name:'Irina Margaryan',subject:'Mathematics & French',classes:['6A','9A','7B','5A']},
+      'arturmargaryann9@gmail.com_t': {pass:'1234',role:'teacher',name:'Artur Margaryan',subject:'History & Digital Literacy and Computer Science',classes:['10A','9A','6A','4B','1A']},
+      'teacher3_t': {pass:'1234',role:'teacher',name:'Vahan Hovhannisyan',subject:'Physics',classes:['10B','11A']},
+      'marina.margarian.6@gmail.com_t': {pass:'mashok8858',role:'teacher',name:'Marina Margaryan',subject:'English',classes:['9A','7B','3A','5B']},
+      'Narine22_t': {pass:'erjankutyun$$',role:'teacher',name:'Narine Margaryan',subject:'Armenian Language',classes:['8B','10A','10B','5A','7A']},
+      'vahanteryan25@gmail.com': {pass:'Burger2',role:'student',name:'Irina Margaryan',class:'12A'},
+      'margaryannarine77@gmail.com': {pass:'1234',role:'student',name:'Artur Margaryan',class:'6A'},
+    };
+    DB.classes = {
+      '7B':['Aram Harutyunyan','Gor Martirosyan','Narek Avetisyan','Tigran Sargsyan','Vahe Petrosyan','Davit Hakobyan','Artur Karapetyan','Suren Mkrtchyan','Alen Grigoryan','Hayk Manukyan','Ani Hovhannisyan','Mariam Sargsyan','Lilit Karapetyan','Nare Grigoryan','Sona Petrosyan','Anahit Martirosyan','Lusine Avetisyan','Elen Harutyunyan','Meline Mkrtchyan','Arpi Sahakyan','Gayane Manukyan','Siranush Hovsepyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Karapetyan'],
+      '5B':['Aram Mkrtchyan','Gor Sargsyan','Narek Petrosyan','Tigran Hovhannisyan','Vahe Avetisyan','Davit Karapetyan','Artur Martirosyan','Suren Grigoryan','Alen Hakobyan','Hayk Sargsyan','Ani Mkrtchyan','Mariam Hovhannisyan','Lilit Avetisyan','Nare Sargsyan','Sona Petrosyan','Anahit Karapetyan','Lusine Grigoryan','Elen Martirosyan','Meline Hovhannisyan','Arpi Sargsyan','Gayane Avetisyan','Siranush Karapetyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Sargsyan'],
+      '6A':['Sona Atoyan','Gevorg Ayvazyan','Araqs Avagyan','Levon Baghdasaryan','Gurgen Gasparyan','Daniel Grigoryan','Hakob Grigoryan','Gayane Yeghiazaryan','Aida Enokyan','Ani Eloyan','Maria Kharazyan','Shantellina Hakobyan','Samvel Hakobyan','Shoghane Habardzumyan','Rafael Hambardzumyan','Mariam Ghazaryan','Hovhannes Malkhasyan','Irina Margaryan','Artur Margaryan','Garik Martirosyan','Areg Melkonyan','Melkon Mkrtumyan','Lili Mkrtchyan','Karine Musheghyan','Sargis Nersisyan','Rima Poghosyan','Angelina Sargsyan','Saro Saghatelyan','Elen Sargsyan','Adrianna Vardanyan','Gagik Kishmishyan'],
+      '9A':['Aram Sargsyan','Irina Margaryan','Narek Mkrtchyan','Tigran Avetisyan','Vahe Karapetyan','Davit Martirosyan','Artur Grigoryan','Suren Hakobyan','Alen Sargsyan','Hayk Hovhannisyan','Ani Mkrtchyan','Mariam Avetisyan','Lilit Karapetyan','Nare Sargsyan','Sona Grigoryan','Anahit Hovhannisyan','Lusine Martirosyan','Elen Sargsyan','Meline Avetisyan','Arpi Karapetyan','Gayane Hovhannisyan','Siranush Sargsyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Avetisyan'],
+      '7A':['Aram Petrosyan','Gor Sargsyan','Narek Hovhannisyan','Tigran Mkrtchyan','Vahe Avetisyan','Davit Karapetyan','Artur Martirosyan','Suren Grigoryan','Alen Hakobyan','Hayk Sargsyan','Ani Mkrtchyan','Mariam Hovhannisyan','Lilit Avetisyan','Nare Sargsyan','Sona Petrosyan','Anahit Karapetyan','Lusine Grigoryan','Elen Martirosyan','Meline Hovhannisyan','Arpi Sargsyan','Gayane Avetisyan','Siranush Karapetyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Sargsyan'],
+      '4B':['Aram Sargsyan','Gor Hovhannisyan','Narek Mkrtchyan','Tigran Avetisyan','Vahe Karapetyan','Davit Martirosyan','Artur Grigoryan','Suren Hakobyan','Alen Sargsyan','Hayk Hovhannisyan','Ani Mkrtchyan','Mariam Avetisyan','Lilit Karapetyan','Nare Sargsyan','Sona Grigoryan','Anahit Hovhannisyan','Lusine Martirosyan','Elen Sargsyan','Meline Avetisyan','Arpi Karapetyan','Gayane Hovhannisyan','Siranush Sargsyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Avetisyan'],
+      '1A':['Aram Sargsyan','Gor Hovhannisyan','Narek Mkrtchyan','Tigran Avetisyan','Vahe Karapetyan','Davit Martirosyan','Artur Grigoryan','Suren Hakobyan','Alen Sargsyan','Hayk Hovhannisyan','Ani Mkrtchyan','Mariam Avetisyan','Lilit Karapetyan','Nare Sargsyan','Sona Grigoryan','Anahit Hovhannisyan','Lusine Martirosyan','Elen Sargsyan','Meline Avetisyan','Arpi Karapetyan','Gayane Hovhannisyan','Siranush Sargsyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Avetisyan'],
+      '12A':['Aram Sargsyan','Gor Hovhannisyan','Narek Mkrtchyan','Tigran Avetisyan','Vahe Karapetyan','Davit Martirosyan','Artur Grigoryan','Suren Hakobyan','Alen Sargsyan','Hayk Hovhannisyan','Ani Mkrtchyan','Mariam Avetisyan','Lilit Karapetyan','Nare Sargsyan','Sona Grigoryan','Anahit Hovhannisyan','Lusine Martirosyan','Elen Sargsyan','Meline Avetisyan','Arpi Karapetyan','Gayane Hovhannisyan','Siranush Sargsyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Avetisyan'],
+      '10A':['Ani Hakobyan','Aram Petrosyan','Mari Sargsyan','Vahe Ghazaryan','Naira Hovhannisyan','Gor Avetisyan','Silva Mkrtchyan','Davit Manukyan'],
+      '10B':['Lilit Grigoryan','Arman Avagyan','Nare Simonyan','Tigran Karapetyan','Lusine Danielyan'],
+      '11A':['Karen Mikaelyan','Diana Ohanyan','Levon Stepanyan'],
+    };
+    DB.schedule = {
+      '6A':{
+        'Mon':[{sub:'English',teacher:'Marina Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Nature',teacher:'Nare Harutyunyan'},{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'History',teacher:'Artur Margaryan'},{sub:'Russian Language',teacher:'Lusine Vardanyan'}],
+        'Tue':[{sub:'Physical Education',teacher:'Aram Ghazaryan'},{sub:'Music',teacher:'Vahan Hovhannisyan'},{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'English',teacher:'Marina Margaryan'}],
+        'Wed':[{sub:'Handcraft',teacher:'Mariam Petrosyan'},{sub:'History',teacher:'Artur Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Physical Education',teacher:'Anna Sargsyan'},{sub:'Russian Language',teacher:'Vahan Hovhannisyan'},{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'Art',teacher:'Armen Mkrtchyan'}],
+        'Thu':[{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Nature',teacher:'Anna Sargsyan'},{sub:'Handcraft',teacher:'Lusine Vardanyan'},{sub:'Russian Language',teacher:'Karine Avagyan'},{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'Mathematics',teacher:'Irina Margaryan'}],
+        'Fri':[{sub:'Physical Education',teacher:'Nare Harutyunyan'},{sub:'Digital Literacy and Computer Science',teacher:'Artur Margaryan'},{sub:'History',teacher:'Artur Margaryan'},{sub:'English',teacher:'Marina Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Mathematics',teacher:'Irina Margaryan'}],
+      },
+      '10A':{
+        'Mon':[{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Physics',teacher:'Vahan Hovhannisyan'},{sub:'History',teacher:'Artur Margaryan'},{sub:'Biology',teacher:'Nare Harutyunyan'},{sub:'English',teacher:'Marina Margaryan'},{sub:'Physical Education',teacher:'Armen Mkrtchyan'}],
+        'Tue':[{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'Chemistry',teacher:'Karine Avagyan'},{sub:'Geography',teacher:'Hovhannes Grigoryan'},{sub:'Physics',teacher:'Vahan Hovhannisyan'},{sub:'History',teacher:'Artur Margaryan'},{sub:'Art',teacher:'Ani Muradyan'}],
+        'Wed':[{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'Physics',teacher:'Vahan Hovhannisyan'},{sub:'Biology',teacher:'Nare Harutyunyan'},{sub:'English',teacher:'Marina Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Chemistry',teacher:'Karine Avagyan'},{sub:'Music',teacher:'Varduhi Stepanyan'}],
+        'Thu':[{sub:'History',teacher:'Artur Margaryan'},{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Geography',teacher:'Hovhannes Grigoryan'},{sub:'English',teacher:'Marina Margaryan'},{sub:'Biology',teacher:'Nare Harutyunyan'},{sub:'Physics',teacher:'Vahan Hovhannisyan'}],
+        'Fri':[{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'History',teacher:'Artur Margaryan'},{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'Chemistry',teacher:'Karine Avagyan'},{sub:'Geography',teacher:'Hovhannes Grigoryan'},{sub:'English',teacher:'Marina Margaryan'},{sub:'Physical Education',teacher:'Armen Mkrtchyan'}],
+      },
+    };
+    showLoading('First time setup — saving data...');
+    await saveSchool();
+    hideLoading();
+  }
+}
+
+// ===================== INIT =====================
+(async()=>{
+  await loadAll();
+  await migrateOldData();
+  await loadAll();
+})();
 </script>
 </body>
 </html>
