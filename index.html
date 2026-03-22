@@ -259,28 +259,82 @@ select:focus { border-color: var(--accent); }
 
 <script>
 const USERS = {
-  'irinamargaryan41@gmail.com_t':  { pass:'Mirina2006',      role:'teacher', name:'Irina Margaryan',  subject:'Mathematics', classes:['10A','10B','12A'] },
-  'arturmargaryann9@gmail.com_t':  { pass:'1234',            role:'teacher', name:'Artur Margaryan',  subject:'History',     classes:['7A','9A','6A','4B','1A'] },
-  'teacher3':                       { pass:'1234',            role:'teacher', name:'Vahan Hovhannisyan', subject:'Physics',   classes:['10B','11A'] },
+  'irinamargaryan41@gmail.com_t':  { pass:'Mirina2006',      role:'teacher', name:'Irina Margaryan',  subject:'Mathematics & French', classes:['6A','9A','7B','5A'] },
+  'arturmargaryann9@gmail.com_t':  { pass:'1234',            role:'teacher', name:'Artur Margaryan',  subject:'History & Digital Literacy and Computer Science', classes:['10A','9A','6A','4B','1A'] },
+  'teacher3':                       { pass:'1234',           role:'teacher', name:'Vahan Hovhannisyan', subject:'Physics',   classes:['10B','11A'] },
   'marina.margarian.6@gmail.com_t': { pass:'mashok8858',     role:'teacher', name:'Marina Margaryan', subject:'English',          classes:['9A','7B','3A','5B'] },
-  'Narine22_t':                     { pass:'erjankutyun$$',  role:'teacher', name:'Narine Margaryan', subject:'Armenian Language', classes:['6A','10A','10B','5A','7A'] },
-  'vahanteryan25@gmail.com':        { pass:'Burger2',        role:'student', name:'Irina Margaryan',  class:'9A' },
+  'Narine22_t':                     { pass:'KK2',            role:'teacher', name:'Narine Margaryan', subject:'Armenian Language', classes:['8B','10A','10B','5A','7A'] },
+  'vahanteryan25@gmail.com':        { pass:'Burger2',        role:'student', name:'Irina Margaryan',  class:'12A' },
   'margaryannarine77@gmail.com':    { pass:'1234',           role:'student', name:'Artur Margaryan',  class:'6A' },
-  'parent1':                        { pass:'1234',           role:'parent',  name:'Hakob Hakobyan', studentName:'Ani Hakobyan', studentClass:'10A' },
-};
+  'parent1':                        { pass:'1234',           role:'parent',  name:'Narine Margaryan', studentName:'Irina Margaryan', studentClass:'12A' },
 
+};
 const CLASSES = {
-  '7B':['Aram Harutyunyan','Gor Martirosyan','Narek Avetisyan','Tigran Sargsyan','Vahe Petrosyan','Davit Hakobyan','Artur Karapetyan','Suren Mkrtchyan','Alen Grigoryan','Hayk Manukyan','Ani Hovhannisyan','Mariam Sargsyan','Lilit Karapetyan','Nare Grigoryan','Sona Petrosyan','Anahit Martirosyan','Lusine Avetisyan','Elen Harutyunyan','Meline Mkrtchyan','Arpi Sahakyan','Gayane Manukyan','Siranush Hovsepyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Karapetyan'],
-  '5B':['Aram Mkrtchyan','Gor Sargsyan','Narek Petrosyan','Tigran Hovhannisyan','Vahe Avetisyan','Davit Karapetyan','Artur Martirosyan','Suren Grigoryan','Alen Hakobyan','Hayk Sargsyan','Ani Mkrtchyan','Mariam Hovhannisyan','Lilit Avetisyan','Nare Sargsyan','Sona Petrosyan','Anahit Karapetyan','Lusine Grigoryan','Elen Martirosyan','Meline Hovhannisyan','Arpi Sargsyan','Gayane Avetisyan','Siranush Karapetyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Sargsyan'],
-  '6A':['Sona Atoyan','Gevorg Ayvazyan','Araqs Avagyan','Levon Baghdasaryan','Gurgen Gasparyan','Daniel Grigoryan','Hakob Grigoryan','Gayane Yeghiazaryan','Aida Enokyan','Ani Eloyan','Maria Kharazyan','Shantellina Hakobyan','Samvel Hakobyan','Shoghane Habardzumyan','Rafael Hambardzumyan','Mariam Ghazaryan','Hovhannes Malkhasyan','Irina Margaryan','Artur Margaryan','Garik Martirosyan','Areg Melkonyan','Melkon Mkrtumyan','Lili Mkrtchyan','Karine Musheghyan','Sargis Nersisyan','Rima Poghosyan','Angelina Sargsyan','Saro Saghatelyan','Elen Sargsyan','Adrianna Vardanyan','Gagik Kishmishyan'],
-  '9A':['Aram Sargsyan','Irina Margaryan','Narek Mkrtchyan','Tigran Avetisyan','Vahe Karapetyan','Davit Martirosyan','Artur Grigoryan','Suren Hakobyan','Alen Sargsyan','Hayk Hovhannisyan','Ani Mkrtchyan','Mariam Avetisyan','Lilit Karapetyan','Nare Sargsyan','Sona Grigoryan','Anahit Hovhannisyan','Lusine Martirosyan','Elen Sargsyan','Meline Avetisyan','Arpi Karapetyan','Gayane Hovhannisyan','Siranush Sargsyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Avetisyan'],
-  '7A':['Aram Petrosyan','Gor Sargsyan','Narek Hovhannisyan','Tigran Mkrtchyan','Vahe Avetisyan','Davit Karapetyan','Artur Martirosyan','Suren Grigoryan','Alen Hakobyan','Hayk Sargsyan','Ani Mkrtchyan','Mariam Hovhannisyan','Lilit Avetisyan','Nare Sargsyan','Sona Petrosyan','Anahit Karapetyan','Lusine Grigoryan','Elen Martirosyan','Meline Hovhannisyan','Arpi Sargsyan','Gayane Avetisyan','Siranush Karapetyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Sargsyan'],
-  '4B':['Aram Sargsyan','Gor Hovhannisyan','Narek Mkrtchyan','Tigran Avetisyan','Vahe Karapetyan','Davit Martirosyan','Artur Grigoryan','Suren Hakobyan','Alen Sargsyan','Hayk Hovhannisyan','Ani Mkrtchyan','Mariam Avetisyan','Lilit Karapetyan','Nare Sargsyan','Sona Grigoryan','Anahit Hovhannisyan','Lusine Martirosyan','Elen Sargsyan','Meline Avetisyan','Arpi Karapetyan','Gayane Hovhannisyan','Siranush Sargsyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Avetisyan'],
-  '1A':['Aram Sargsyan','Gor Hovhannisyan','Narek Mkrtchyan','Tigran Avetisyan','Vahe Karapetyan','Davit Martirosyan','Artur Grigoryan','Suren Hakobyan','Alen Sargsyan','Hayk Hovhannisyan','Ani Mkrtchyan','Mariam Avetisyan','Lilit Karapetyan','Nare Sargsyan','Sona Grigoryan','Anahit Hovhannisyan','Lusine Martirosyan','Elen Sargsyan','Meline Avetisyan','Arpi Karapetyan','Gayane Hovhannisyan','Siranush Sargsyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Avetisyan'],
-  '12A':['Aram Sargsyan','Gor Hovhannisyan','Narek Mkrtchyan','Tigran Avetisyan','Vahe Karapetyan','Davit Martirosyan','Artur Grigoryan','Suren Hakobyan','Alen Sargsyan','Hayk Hovhannisyan','Ani Mkrtchyan','Mariam Avetisyan','Lilit Karapetyan','Nare Sargsyan','Sona Grigoryan','Anahit Hovhannisyan','Lusine Martirosyan','Elen Sargsyan','Meline Avetisyan','Arpi Karapetyan','Gayane Hovhannisyan','Siranush Sargsyan','Tatevik Grigoryan','Anna Hakobyan','Zaruhi Avetisyan'],
-  '10A':['Ani Hakobyan','Aram Petrosyan','Mari Sargsyan','Vahe Ghazaryan','Naira Hovhannisyan','Gor Avetisyan','Silva Mkrtchyan','Davit Manukyan'],
-  '10B':['Lilit Grigoryan','Arman Avagyan','Nare Simonyan','Tigran Karapetyan','Lusine Danielyan'],
-  '11A':['Karen Mikaelyan','Diana Ohanyan','Levon Stepanyan'],
+'7B':[
+'Aram Hovsepyan','Gor Mkrtchyan','Narek Avetisyan','Tigran Karapetyan','Vahe Grigoryan','Davit Petrosyan','Artur Sargsyan','Suren Hakobyan','Alen Manukyan','Hayk Vardanyan',
+'Ani Harutyunyan','Mariam Asatryan','Lilit Khachatryan','Nare Margaryan','Sona Ghazaryan','Anahit Sahakyan','Lusine Melkonyan','Elen Danielyan','Meline Abrahamyan',
+'Arpi Baghdasaryan','Gayane Papikyan','Siranush Arakelyan','Tatevik Kirakosyan','Anna Stepanyan','Zaruhi Tumanyan','Karen Nalbandyan','Milena Chilingaryan','Erik Balasanyan','Gohar Asatryan'
+],
+
+'5B':[
+'Ashot Abrahamyan','Gevorg Baghdasaryan','Levon Chobanyan','Gagik Davtyan','Samvel Eloyan','Ruben Farajyan','Arsen Gasparyan','David Hambardzumyan','Karine Ishkhanyan','Liana Jivanyan',
+'Meri Keshishyan','Nelli Lazaryan','Vardan Minasyan','Marine Norikyan','Hasmik Ohanyan','Seda Petoyan','Anush Qocharyan','Lusik Rshuni','Nana Sargsyan','Edgar Torosyan',
+'Svetlana Ulikhanyan','Rima Voskanyan','Gor Yeghiazaryan','Aram Zhamkochyan','Ani Zargaryan','Mariam Zatikyan','Lilit Zeynalyan','Nare Zorayan','Sona Zorikyan'
+],
+
+'6A':[
+'Sona Atoyan','Gevorg Ayvazyan','Araqs Avagyan','Levon Baghdasaryan','Gurgen Gasparyan','Daniel Grigoryan','Hakob Grigoryan','Gayane Yeghiazaryan','Aida Enokyan','Ani Eloyan',
+'Maria Kharazyan','Shantellina Hakobyan','Samvel Hakobyan','Shoghane Hambardzumyan','Rafael Hambardzumyan','Mariam Ghazaryan','Hovhannes Malkhasyan','Irina Margaryan','Artur Margaryan','Garik Martirosyan',
+'Areg Melkonyan','Melkon Mkrtumyan','Lili Mkrtchyan','Karine Musheghyan','Sargis Nersisyan','Rima Poghosyan','Angelina Sargsyan','Saro Saghatelyan','Elen Sargsyan','Adrianna Vardanyan'
+],
+
+'9A':[
+'Arman Abelyan','Gor Balayan','Narek Chobanyan','Tigran Dallakyan','Vahe Eganyan','Davit Frangulyan','Artur Ginosyan','Suren Hmayakyan','Alen Imastyan','Hayk Jragatsyan',
+'Ani Karakhanyan','Mariam Lorentsyan','Lilit Madoyan','Nare Norikyan','Sona Oshakanyan','Anahit Paronyan','Lusine Qeshishyan','Elen Rshuni','Meline Sahakyan','Arpi Tigranyan',
+'Gayane Ulikhanyan','Siranush Vahanyan','Tatevik Voskanyan','Anna Xandanyan','Zaruhi Yerkanyan','Karen Zaqyan','Milena Zurabyan','Erik Zorikyan','Gohar Zatikyan'
+],
+
+'7A':[
+'Aram Zhamharyan','Gor Zaqaryan','Narek Zeynalyan','Tigran Zorayan','Vahe Zatikyan','Davit Zhamkochyan','Artur Zanginyan','Suren Zargaryan','Alen Zatikyan','Hayk Zorikyan',
+'Ani Zhamharyan','Mariam Zaqaryan','Lilit Zeynalyan','Nare Zorayan','Sona Zatikyan','Anahit Zhamkochyan','Lusine Zanginyan','Elen Zargaryan','Meline Zatikyan','Arpi Zorikyan',
+'Gayane Zhamharyan','Siranush Zaqaryan','Tatevik Zeynalyan','Anna Zorayan','Zaruhi Zatikyan','Karen Zhamkochyan','Milena Zanginyan','Erik Zargaryan','Gohar Zatikyan'
+],
+
+'4B':[
+'Aram Khandanyan','Gor Kroyan','Narek Khechumyan','Tigran Khlghatyan','Vahe Khurshudyan','Davit Kinosyan','Artur Kirakosyan','Suren Kloyan','Alen Knyazyan','Hayk Komitasyan',
+'Ani Koshkaryan','Mariam Kotanjyan','Lilit Kroyants','Nare Ktorikyan','Sona Ktshyan','Anahit Kubatyan','Lusine Kulijanyan','Elen Kumaryan','Meline Kurkchyan','Arpi Kushkyan',
+'Gayane Kutoyan','Siranush Kuvshinyan','Tatevik Kyureghyan','Anna Kyurkchyan','Zaruhi Kyurumyan','Karen Kyutukyan','Milena Kyuzaryan','Erik Kyuzikyan','Gohar Kyuzyan'
+],
+
+'1A':[
+'Aram Lalayan','Gor Lalayev','Narek Lalayants','Tigran Lalazaryan','Vahe Lalazaryan','Davit Lalayan','Artur Lalayev','Suren Lalazaryan','Alen Lalayants','Hayk Lalayan',
+'Ani Lalayev','Mariam Lalayan','Lilit Lalazaryan','Nare Lalayants','Sona Lalayan','Anahit Lalayev','Lusine Lalazaryan','Elen Lalayants','Meline Lalayan','Arpi Lalayev',
+'Gayane Lalazaryan','Siranush Lalayants','Tatevik Lalayan','Anna Lalayev','Zaruhi Lalazaryan','Karen Lalayants','Milena Lalayan','Erik Lalayev','Gohar Lalazaryan'
+],
+
+'12A':[
+'Aram Malkhasyan','Gor Manasyan','Narek Manvelyan','Tigran Margosyan','Vahe Markaryan','Davit Martikyan','Artur Matevosyan','Suren Mheryan','Alen Mikayelyan','Hayk Minasyan',
+'Ani Mirzoyan','Mariam Mkrtchyan','Lilit Movsisyan','Nare Muradyan','Sona Musayelyan','Anahit Mxitaryan','Lusine Myasnikyan','Elen Nalchajyan','Meline Navasardyan','Arpi Nazaryan',
+'Gayane Negharyan','Siranush Norayr','Tatevik Nshanian','Anna Nshanyan','Zaruhi Nubar','Karen Nurijanyan','Milena Nurumyan','Erik Nuryan','Gohar Nver'
+],
+
+'10A':[
+'Ani Oganesyan','Aram Okroyan','Mari Olkanyan','Vahe Ovakimyan','Naira Ovasapyan','Gor Ovsepyan','Silva Ozanyan','Davit Pahlevanyan','Karen Pambukyan','Lilit Panosyan',
+'Arman Papazyan','Nare Parer','Tigran Paronyan','Lusine Parsamyan','Areg Partamyan','Meri Pashayan','Gagik Pashikyan','Anahit Patkanyan','Samvel Paytyan','Nelli Peganyan',
+'Vardan Petoyan','Marine Pilosyan','Erik Poghosyan','Seda Poladyan','Arsen Poghikyan','Milena Prangyan','David Pshyan','Anna Ptghni','Gor Puzikyan'
+],
+
+'10B':[
+'Lilit Qamalyan','Arman Qananyan','Nare Qasaryan','Tigran Qazaryan','Lusine Qechyan','Aram Qerobyan','Gor Qezaryan','Narek Qirakosyan','Tigran Qochyan','Vahe Qoshtoyan',
+'Davit Qulinyan','Artur Qutoyan','Suren Qvinyan','Alen Qyaramyan','Hayk Qyureghyan','Ani Qyuryan','Mariam Qyuzbashyan','Lilit Qyuzikyan','Nare Qyuzyan','Sona Qyuzaryan',
+'Anahit Qyuzbekyan','Lusine Qyuzgan','Elen Qyuzdaryan','Meline Qyuzmanyan','Arpi Qyuznoyan','Gayane Qyuzshyan','Siranush Qyuzvardyan','Tatevik Qyuzyan','Anna Qyuzar'
+],
+
+'11A':[
+'Karen Rshuni','Diana Sahakyan','Levon Sargsyan','Aram Saroyan','Gor Sedrakyan','Narek Seferyan','Tigran Sekoyan','Vahe Selimyan','Davit Serobyan','Artur Shahbazyan',
+'Suren Shahinyan','Alen Shahmuradyan','Hayk Shahnazaryan','Ani Shakaryan','Mariam Shaldjyan','Lilit Shamamyan','Nare Shantyan','Sona Shapoyan','Anahit Shatvanyan','Lusine Shavarshyan',
+'Elen Shekoyan','Meline Shemyan','Arpi Shikhmuradyan','Gayane Shikoyan','Siranush Shirinayan','Tatevik Shishmanyan','Anna Shogheryan','Zaruhi Shoroyan','Gohar Shushanyan'
+]
 };
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -288,144 +342,132 @@ const DAY_NAMES_SHORT = ['Mon','Tue','Wed','Thu','Fri'];
 const DAY_NAMES_LONG  = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
 
 const CLASS_SCHEDULE = {
-  '10A': {
+  '12A': {
     'Mon': [
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
       {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Physics',           teacher:'Vahan Hovhannisyan'},
-      {sub:'History',           teacher:'Artur Margaryan'},
-      {sub:'Biology',           teacher:'Nare Harutyunyan'},
-      {sub:'English',           teacher:'Marina Margaryan'},
-      {sub:'Physical Education',teacher:'Armen Mkrtchyan'},
+      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Biology', teacher:'Nare Harutyunyan'},
+      {sub:'English', teacher:'Marina Margaryan'},
     ],
     'Tue': [
       {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
-      {sub:'Chemistry',         teacher:'Karine Avagyan'},
-      {sub:'Geography',         teacher:'Hovhannes Grigoryan'},
-      {sub:'Physics',           teacher:'Vahan Hovhannisyan'},
-      {sub:'History',           teacher:'Artur Margaryan'},
-      {sub:'Art',               teacher:'Ani Muradyan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
+      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
+      {sub:'History', teacher:'Artur Margaryan'}, 
     ],
     'Wed': [
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
-      {sub:'Physics',           teacher:'Vahan Hovhannisyan'},
-      {sub:'Biology',           teacher:'Nare Harutyunyan'},
-      {sub:'English',           teacher:'Marina Margaryan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Biology', teacher:'Nare Harutyunyan'},
+      {sub:'English', teacher:'Marina Margaryan'},
       {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Chemistry',         teacher:'Karine Avagyan'},
-      {sub:'Music',             teacher:'Varduhi Stepanyan'},
+      {sub:'Chemistry', teacher:'Karine Avagyan'},
     ],
     'Thu': [
-      {sub:'History',           teacher:'Artur Margaryan'},
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
-      {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Geography',         teacher:'Hovhannes Grigoryan'},
-      {sub:'English',           teacher:'Marina Margaryan'},
-      {sub:'Biology',           teacher:'Nare Harutyunyan'},
-      {sub:'Physics',           teacher:'Vahan Hovhannisyan'},
+      {sub:'History', teacher:'Artur Margaryan'}, 
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
+      {sub:'English', teacher:'Marina Margaryan'},
+      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
     ],
     'Fri': [
       {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'History',           teacher:'Artur Margaryan'},
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
-      {sub:'Chemistry',         teacher:'Karine Avagyan'},
-      {sub:'Geography',         teacher:'Hovhannes Grigoryan'},
-      {sub:'English',           teacher:'Marina Margaryan'},
-      {sub:'Physical Education',teacher:'Armen Mkrtchyan'},
+      {sub:'History', teacher:'Artur Margaryan'}, 
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
+      {sub:'English', teacher:'Marina Margaryan'},
     ],
   },
 
-  '9A': {
+  '12A': {
     'Mon': [
-      {sub:'Physics',           teacher:'Vahan Hovhannisyan'},
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
-      {sub:'Biology',           teacher:'Nare Harutyunyan'},
+      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
       {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'English',           teacher:'Marina Margaryan'},
-      {sub:'History',           teacher:'Artur Margaryan'},
-      {sub:'Art',               teacher:'Ani Muradyan'},
+      {sub:'English', teacher:'Marina Margaryan'},
+      {sub:'History', teacher:'Artur Margaryan'}, 
     ],
     'Tue': [
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
-      {sub:'Physics',           teacher:'Vahan Hovhannisyan'},
-      {sub:'Chemistry',         teacher:'Karine Avagyan'},
-      {sub:'Geography',         teacher:'Hovhannes Grigoryan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Chemistry', teacher:'Karine Avagyan'},
+      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
       {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Biology',           teacher:'Nare Harutyunyan'},
-      {sub:'Music',             teacher:'Varduhi Stepanyan'},
+      {sub:'Biology', teacher:'Nare Harutyunyan'},
     ],
     'Wed': [
       {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'History',           teacher:'Artur Margaryan'},
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
-      {sub:'English',           teacher:'Marina Margaryan'},
-      {sub:'Physics',           teacher:'Vahan Hovhannisyan'},
-      {sub:'Geography',         teacher:'Hovhannes Grigoryan'},
-      {sub:'Physical Education',teacher:'Armen Mkrtchyan'},
+      {sub:'History', teacher:'Artur Margaryan'}, 
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Physics', teacher:'Vahan Hovhannisyan'},
+      {sub:'Geography', teacher:'Hovhannes Grigoryan'},
     ],
     'Thu': [
-      {sub:'Physics',           teacher:'Vahan Hovhannisyan'},
+      {sub:'Digital literacy and Computer science', teacher:'Artur Margaryan'}, 
       {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'English',           teacher:'Marina Margaryan'},
-      {sub:'History',           teacher:'Artur Margaryan'},
-      {sub:'Chemistry',         teacher:'Karine Avagyan'},
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
-      {sub:'Biology',           teacher:'Nare Harutyunyan'},
+      {sub:'English', teacher:'Marina Margaryan'},
+      {sub:'History', teacher:'Artur Margaryan'}, 
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
     ],
     'Fri': [
-      {sub:'Biology',           teacher:'Nare Harutyunyan'},
-      {sub:'Chemistry',         teacher:'Karine Avagyan'},
+      {sub:'Biology', teacher:'Nare Harutyunyan'},
+      {sub:'French', teacher:'Irina Margaryan'},
       {sub:'Armenian Language', teacher:'Narine Margaryan'},
-      {sub:'Mathematics',       teacher:'Irina Margaryan'},
-      {sub:'History',           teacher:'Artur Margaryan'},
-      {sub:'English',           teacher:'Marina Margaryan'},
-      {sub:'Physical Education',teacher:'Armen Mkrtchyan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'History', teacher:'Artur Margaryan'}, 
+      {sub:'English', teacher:'Marina Margaryan'},
     ],
   },
 
   '6A': {
     'Mon': [
-      {sub:'English',                              teacher:'Marina Margaryan'},
-      {sub:'Armenian Language',                    teacher:'Narine Margaryan'},
-      {sub:'Nature',                               teacher:'Nare Harutyunyan'},
-      {sub:'Mathematics',                          teacher:'Irina Margaryan'},
-      {sub:'History',                              teacher:'Artur Margaryan'},
-      {sub:'Russian Language',                     teacher:'Lusine Vardanyan'},
+      {sub:'English', teacher:'Marina Margaryan'},
+      {sub:'Armenian Language', teacher:'Narine Margaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'History', teacher:'Artur Margaryan'}, 
+      {sub:'Russian Language', teacher:'Lusine Vardanyan'},
     ],
     'Tue': [
-      {sub:'Physical Education',                   teacher:'Aram Ghazaryan'},
-      {sub:'Music',                                teacher:'Vahan Hovhannisyan'},
-      {sub:'Mathematics',                          teacher:'Irina Margaryan'},
-      {sub:'Armenian Language',                    teacher:'Narine Margaryan'},
-      {sub:'Armenian Language',                    teacher:'Narine Margaryan'},
-      {sub:'English',                              teacher:'Marina Margaryan'},
+      {sub:'Physical Education', teacher:'Aram Ghazaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
+      {sub:'Armenian Language', teacher:'Narine Margaryan'},
+      {sub:'Armenian Language', teacher:'Narine Margaryan'},
+      {sub:'English', teacher:'Marina Margaryan'},
     ],
     'Wed': [
-      {sub:'Handcraft',                            teacher:'Mariam Petrosyan'},
-      {sub:'History',                              teacher:'Artur Margaryan'},
-      {sub:'Armenian Language',                    teacher:'Narine Margaryan'},
-      {sub:'Physical Education',                   teacher:'Anna Sargsyan'},
-      {sub:'Russian Language',                     teacher:'Vahan Hovhannisyan'},
-      {sub:'Mathematics',                          teacher:'Irina Margaryan'},
-      {sub:'Art',                                  teacher:'Armen Mkrtchyan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'History', teacher:'Artur Margaryan'}, 
+      {sub:'Armenian Language', teacher:'Narine Margaryan'},
+      {sub:'Physical Education', teacher:'Anna Sargsyan'},
+      {sub:'Russian Language', teacher:'Vahan Hovhannisyan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
     ],
     'Thu': [
-      {sub:'Armenian Language',                    teacher:'Narine Margaryan'},
-      {sub:'Armenian Language',                    teacher:'Narine Margaryan'},
-      {sub:'Nature',                               teacher:'Anna Sargsyan'},
-      {sub:'Handcraft',                            teacher:'Lusine Vardanyan'},
-      {sub:'Russian Language',                     teacher:'Karine Avagyan'},
-      {sub:'Mathematics',                          teacher:'Irina Margaryan'},
-      {sub:'Mathematics',                          teacher:'Irina Margaryan'},
+      {sub:'Armenian Language', teacher:'Narine Margaryan'},
+      {sub:'French', teacher:'Irina Margaryan'},
+      {sub:'Nature', teacher:'Anna Sargsyan'},
+      {sub:'Handcraft', teacher:'Lusine Vardanyan'},
+      {sub:'Russian Language', teacher:'Karine Avagyan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
     ],
     'Fri': [
-      {sub:'Physical Education',                   teacher:'Nare Harutyunyan'},
-      {sub:'Digital Literacy and Computer Science',teacher:'Karine Avagyan'},
-      {sub:'History',                              teacher:'Artur Margaryan'},
-      {sub:'English',                              teacher:'Marina Margaryan'},
-      {sub:'Armenian Language',                    teacher:'Narine Margaryan'},
-      {sub:'Mathematics',                          teacher:'Irina Margaryan'},
+      {sub:'Physical Education', teacher:'Nare Harutyunyan'},
+      {sub:'Digital literacy and Computer science', teacher:'Artur Margaryan'}, 
+      {sub:'History', teacher:'Artur Margaryan'}, 
+      {sub:'English', teacher:'Marina Margaryan'},
+      {sub:'Armenian Language', teacher:'Narine Margaryan'},
+      {sub:'Mathematics', teacher:'Irina Margaryan'},
     ],
   },
 };
@@ -505,6 +547,7 @@ function formatDate(str) {
 let currentUser = null;
 let selectedClass = null;
 let selectedDate = getTodayStr();
+let selectedSubject = null;
 
 let currentRole = 'teacher';
 
@@ -699,7 +742,18 @@ function buildDashboard() {
   </div>`;
 }
 
+function getSubjects() {
+  return currentUser.subject.split('&').map(s => s.trim());
+}
+
 function buildGradesPage() {
+  const subjects = getSubjects();
+  const subjectSelect = subjects.length > 1
+    ? `<label>Subject:</label>
+       <select id="grade-subject-select" onchange="selectedSubject=this.value;refreshGradesTable()">
+         ${subjects.map(s => `<option value="${s}">${s}</option>`).join('')}
+       </select>`
+    : '';
   return `<div class="page" id="page-grades">
     <div class="page-title">Grades</div>
     <div class="page-sub">Enter grades per lesson</div>
@@ -710,6 +764,7 @@ function buildGradesPage() {
       </select>
       <label>Date:</label>
       <input type="date" id="grade-date" value="${getTodayStr()}" onchange="selectedDate=this.value;refreshGradesTable()" style="padding:7px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;outline:none;">
+      ${subjectSelect}
     </div>
     <div class="table-card">
       <div class="table-header"><h3 id="grades-table-title">Grades</h3><button class="btn btn-primary" onclick="saveGrades()">✓ Save</button></div>
@@ -724,7 +779,7 @@ function refreshGradesTable() {
   const cls = selectedClass;
   const date = selectedDate || getTodayStr();
   const students = CLASSES[cls] || [];
-  const subj = currentUser.subject;
+  const subj = selectedSubject || getSubjects()[0];
   document.getElementById('grades-table-title').textContent = `${cls} · ${subj} · ${formatDate(date)}`;
   document.getElementById('grades-table').innerHTML = `
     <thead><tr><th>Student</th><th>Grade (1–5)</th><th>Note</th></tr></thead>
@@ -744,7 +799,7 @@ function refreshGradesTable() {
 function saveGrades() {
   const cls = selectedClass;
   const date = selectedDate || getTodayStr();
-  const subj = currentUser.subject;
+  const subj = selectedSubject || getSubjects()[0];
   (CLASSES[cls]||[]).forEach((st,i) => {
     const v = document.getElementById('gi-'+i)?.value;
     if (v && v >= 1 && v <= 10) {
