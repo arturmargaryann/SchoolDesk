@@ -244,6 +244,64 @@ async function saveAttDB() {
 }
 
 // ===================== UTILS =====================
+
+// Get days teacher has lessons in a class
+function getTeacherDaysInClass(cls) {
+  const schedule = DB.schedule[cls] || {};
+  const days = ['Mon','Tue','Wed','Thu','Fri'];
+  const subjs = getSubjects();
+  const teacherDays = [];
+  days.forEach(day => {
+    const lessons = schedule[day] || [];
+    const hasLesson = lessons.some(l => subjs.includes(l.sub));
+    if (hasLesson) teacherDays.push(day);
+  });
+  return teacherDays;
+}
+
+// Generate last 60 days that match teacher's schedule for a class
+function getAvailableDates(cls, limit=60) {
+  const teacherDays = getTeacherDaysInClass(cls);
+  if (!teacherDays.length) {
+    // No schedule found — return last 30 days (all)
+    const dates = [];
+    const d = new Date();
+    for (let i = 0; i < 30; i++) {
+      if (d.getDay() >= 1 && d.getDay() <= 5) dates.push(dateToStr(new Date(d)));
+      d.setDate(d.getDate() - 1);
+    }
+    return dates;
+  }
+  const dayMap = {'Mon':1,'Tue':2,'Wed':3,'Thu':4,'Fri':5};
+  const allowedNums = teacherDays.map(d => dayMap[d]);
+  const dates = [];
+  const d = new Date();
+  let tries = 0;
+  while (dates.length < limit && tries < 365) {
+    if (allowedNums.includes(d.getDay())) dates.push(dateToStr(new Date(d)));
+    d.setDate(d.getDate() - 1);
+    tries++;
+  }
+  return dates;
+}
+
+function populateDateSelect(selectId, cls, currentDate, onchange) {
+  const el = document.getElementById(selectId);
+  if (!el) return;
+  const dates = getAvailableDates(cls);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  el.innerHTML = dates.map(d => {
+    const dt = new Date(d);
+    const label = `${dayNames[dt.getDay()]} ${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()}`;
+    return `<option value="${d}" ${d === currentDate ? 'selected' : ''}>${label}</option>`;
+  }).join('');
+  if (!dates.includes(currentDate) && dates.length) {
+    selectedDate = dates[0];
+    el.value = dates[0];
+  }
+}
+
 function getTodayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -348,6 +406,7 @@ function buildApp() {
     showPage('admin-dashboard');
   } else if (currentUser.role==='teacher') {
     selectedClass = (currentUser.classes||[])[0]||null;
+    selectedSubject = getSubjects()[0]||null;
     nav.innerHTML=`
       <div class="nav-section">Overview</div>
       <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard"><span class="ni">📊</span> Dashboard</div>
@@ -440,7 +499,9 @@ function buildGradesPage() {
         ${(currentUser.classes||[]).map(c=>`<option value="${c}">${c}</option>`).join('')}
       </select>
       <label>Date:</label>
-      <input type="date" value="${getTodayStr()}" onchange="selectedDate=this.value;refreshGradesTable()" style="padding:7px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;outline:none;">
+      <select id="grade-date-select" onchange="selectedDate=this.value;refreshGradesTable()" style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;min-width:160px;">
+        <option value="${getTodayStr()}">Loading...</option>
+      </select>
       ${subSel}
     </div>
     <div class="table-card" style="margin-bottom:16px;">
@@ -466,7 +527,9 @@ function buildGradesPage() {
 function refreshGradesTable() {
   const cls=selectedClass;
   const date=selectedDate||getTodayStr();
-  const subj=selectedSubject||getSubjects()[0]||'';
+  if(!selectedSubject) selectedSubject=getSubjects()[0]||'';
+  const subj=selectedSubject;
+  populateDateSelect('grade-date-select', cls, date, 'selectedDate=this.value;refreshGradesTable()');
   const students=DB.classes[cls]||[];
   const el=document.getElementById('grades-table-title');
   if(el) el.textContent=`${cls} · ${subj} · ${formatDate(date)}`;
@@ -519,7 +582,9 @@ function buildAttendancePage() {
         ${(currentUser.classes||[]).map(c=>`<option value="${c}">${c}</option>`).join('')}
       </select>
       <label>Date:</label>
-      <input type="date" value="${getTodayStr()}" onchange="selectedDate=this.value;refreshAttTable()" style="padding:7px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;outline:none;">
+      <select id="att-date-select" onchange="selectedDate=this.value;refreshAttTable()" style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;min-width:160px;">
+        <option value="${getTodayStr()}">Loading...</option>
+      </select>
     </div>
     <div class="table-card">
       <div class="table-header"><h3>Attendance</h3><button class="btn btn-primary" onclick="saveAttendance()">✓ Save</button></div>
@@ -531,6 +596,7 @@ function buildAttendancePage() {
 function refreshAttTable() {
   const cls=selectedClass;
   const date=selectedDate||getTodayStr();
+  populateDateSelect('att-date-select', cls, date, 'selectedDate=this.value;refreshAttTable()');
   const students=DB.classes[cls]||[];
   if(!ATTENDANCE[cls]) ATTENDANCE[cls]={};
   if(!ATTENDANCE[cls][date]) ATTENDANCE[cls][date]={};
@@ -603,40 +669,66 @@ function buildNotifyPage() {
 }
 
 // ===================== STUDENT/PARENT - DIARY =====================
+function getAcademicYears() {
+  const now=new Date();
+  const curYear=now.getFullYear();
+  const years=[];
+  for(let y=curYear+1;y>=curYear-3;y--){
+    years.push(`${y-1}-${y}`);
+  }
+  return years;
+}
+
+function getMonthsForYear(ayStr) {
+  // Academic year: Sep Y1 - Jun Y2
+  const [y1,y2]=ayStr.split('-').map(Number);
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const result=[];
+  // Sep-Dec of y1
+  for(let m=8;m<=11;m++) result.push({val:`${y1}-${String(m+1).padStart(2,'0')}`,label:`${months[m]} ${y1}`});
+  // Jan-Jun of y2
+  for(let m=0;m<=5;m++) result.push({val:`${y2}-${String(m+1).padStart(2,'0')}`,label:`${months[m]} ${y2}`});
+  return result;
+}
+
 function buildDiaryPage() {
   const now=new Date();
-  const opts=[];
-  for(let i=0;i<12;i++){
-    const y=now.getFullYear(), m=i;
-    const val=`${y}-${String(i+1).padStart(2,'0')}`;
-    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    opts.push(`<option value="${val}" ${i===now.getMonth()?'selected':''}>${months[i]} ${y}</option>`);
-  }
+  const curMonth=now.getMonth();
+  const curYear=now.getFullYear();
+  // Current academic year
+  const curAY=curMonth>=8?`${curYear}-${curYear+1}`:`${curYear-1}-${curYear}`;
+  const years=getAcademicYears();
+  const months=getMonthsForYear(curAY);
+  const curMonthVal=`${curYear}-${String(curMonth+1).padStart(2,'0')}`;
   return `<div class="page" id="page-diary">
     <div class="page-title">📖 My Diary</div>
     <div class="page-sub" id="diary-sub"></div>
-    <div class="select-row" style="margin-bottom:24px;">
+    <div class="select-row" style="margin-bottom:8px;">
+      <label>Academic Year:</label>
+      <select id="diary-year-select" onchange="onDiaryYearChange()">
+        ${years.map(y=>`<option value="${y}" ${y===curAY?'selected':''}>${y}</option>`).join('')}
+      </select>
       <label>Month:</label>
-      <select id="diary-month-select" onchange="renderDiaryMonth()">${opts.join('')}</select>
+      <select id="diary-month-select" onchange="onDiaryMonthChange()">
+        ${months.map(m=>`<option value="${m.val}" ${m.val===curMonthVal?'selected':''}>${m.label}</option>`).join('')}
+      </select>
+      <label>Week:</label>
+      <select id="diary-week-select" onchange="renderDiaryWeek()"></select>
     </div>
     <div id="diary-content"></div>
   </div>`;
 }
 
-function renderDiary() {
-  const studentName=currentUser.role==='parent'?currentUser.studentName:currentUser.name;
-  const cls=currentUser.role==='parent'?currentUser.studentClass:currentUser.class;
-  document.getElementById('diary-sub').textContent=`${studentName} · Class ${cls}`;
-  window._diaryStudent=studentName;
-  window._diaryCls=cls;
-  renderDiaryMonth();
+function onDiaryYearChange() {
+  const ay=document.getElementById('diary-year-select').value;
+  const months=getMonthsForYear(ay);
+  const sel=document.getElementById('diary-month-select');
+  sel.innerHTML=months.map(m=>`<option value="${m.val}">${m.label}</option>`).join('');
+  onDiaryMonthChange();
 }
 
-function renderDiaryMonth() {
-  const cls=window._diaryCls;
-  const studentName=window._diaryStudent;
-  const val=document.getElementById('diary-month-select').value;
-  const [year,month]=val.split('-').map(Number);
+function getWeeksOfMonth(yearMonthVal) {
+  const [year,month]=yearMonthVal.split('-').map(Number);
   const allDays=[];
   const d=new Date(year,month-1,1);
   while(d.getMonth()===month-1){
@@ -650,12 +742,57 @@ function renderDiaryMonth() {
     week.push(day);
   });
   if(week.length>0) weeks.push(week);
+  return weeks;
+}
+
+function onDiaryMonthChange() {
+  const val=document.getElementById('diary-month-select').value;
+  const weeks=getWeeksOfMonth(val);
+  const sel=document.getElementById('diary-week-select');
+  sel.innerHTML=weeks.map((wk,i)=>{
+    const s=wk[0],e=wk[wk.length-1];
+    const fmt=d=>`${d.getDate()}.${String(d.getMonth()+1).padStart(2,'0')}`;
+    return `<option value="${i}">Week ${i+1}: ${fmt(s)} – ${fmt(e)}</option>`;
+  }).join('');
+  // Select current week if in this month
+  const today=new Date();
+  const todayStr=dateToStr(today);
+  let found=false;
+  weeks.forEach((wk,i)=>{
+    if(!found && wk.some(d=>dateToStr(d)===todayStr)){
+      sel.value=i;
+      found=true;
+    }
+  });
+  renderDiaryWeek();
+}
+
+function renderDiary() {
+  const studentName=currentUser.role==='parent'?currentUser.studentName:currentUser.name;
+  const cls=currentUser.role==='parent'?currentUser.studentClass:currentUser.class;
+  document.getElementById('diary-sub').textContent=`${studentName} · Class ${cls}`;
+  window._diaryStudent=studentName;
+  window._diaryCls=cls;
+  onDiaryMonthChange();
+}
+
+function renderDiaryMonth() {
+  onDiaryMonthChange();
+}
+
+function renderDiaryWeek() {
+  const cls=window._diaryCls;
+  const studentName=window._diaryStudent;
+  const val=document.getElementById('diary-month-select').value;
+  const weekIdx=parseInt(document.getElementById('diary-week-select').value)||0;
+  const weeks=getWeeksOfMonth(val);
+  const selectedWeeks=weeks.length?[weeks[weekIdx]].filter(Boolean):[];
 
   const dayKeyMap={1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri'};
   const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday'];
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  document.getElementById('diary-content').innerHTML=weeks.map((wk,wi)=>{
+  document.getElementById('diary-content').innerHTML=selectedWeeks.map((wk,wi)=>{
     const wStart=wk[0],wEnd=wk[wk.length-1];
     const weekLabel=`${wStart.getDate()}.${String(wStart.getMonth()+1).padStart(2,'0')}.${wStart.getFullYear()} – ${wEnd.getDate()}.${String(wEnd.getMonth()+1).padStart(2,'0')}.${wEnd.getFullYear()}`;
     const daysHtml=wk.map(day=>{
@@ -763,7 +900,7 @@ function buildAdminTeachers() {
       <h3>Add New Teacher</h3>
       <div class="form-row">
         <div class="form-field"><label>Full Name</label><input id="t-name" placeholder="Ani Hakobyan"></div>
-        <div class="form-field"><label>Username (email or text)</label><input id="t-user" placeholder="ani.hakobyan@school.am"></div>
+        <div class="form-field"><label>Username</label><input id="t-user" placeholder="ani.hakobyan@school.am"></div>
       </div>
       <div class="form-row">
         <div class="form-field"><label>Password</label><input id="t-pass" placeholder="Password"></div>
@@ -777,16 +914,55 @@ function buildAdminTeachers() {
     <div class="table-card">
       <div class="table-header"><h3>All Teachers (${teachers.length})</h3></div>
       <table><thead><tr><th>Name</th><th>Username</th><th>Subject</th><th>Classes</th><th></th></tr></thead><tbody>
-        ${teachers.map(([key,t])=>`<tr>
-          <td><div class="td-flex"><div class="avatar av-blue">${initials(t.name)}</div>${t.name}</div></td>
+        ${teachers.map(([key,t])=>`<tr id="trow-${key}">
+          <td><div class="td-flex"><div class="avatar av-blue">${initials(t.name)}</div>
+            <span id="t-disp-name-${key}">${t.name}</span>
+          </div></td>
           <td style="font-size:12px;color:var(--text2);">${key.replace(/_t$/,'')}</td>
-          <td>${t.subject||'—'}</td>
-          <td>${(t.classes||[]).join(', ')||'—'}</td>
-          <td><button class="btn btn-danger" onclick="removeUser('${key}')">Remove</button></td>
+          <td id="t-disp-subj-${key}">${t.subject||'—'}</td>
+          <td id="t-disp-cls-${key}">${(t.classes||[]).join(', ')||'—'}</td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn btn-ghost" onclick="editTeacherRow('${key}')">Edit</button>
+            <button class="btn btn-danger" onclick="removeUser('${key}')">Remove</button>
+          </td>
+        </tr>
+        <tr id="trow-edit-${key}" style="display:none;background:var(--surface2);">
+          <td colspan="5" style="padding:14px 16px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:10px;">
+              <div><label style="font-size:11px;color:var(--text2);">Full Name</label><input id="te-name-${key}" value="${t.name}" style="width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-top:4px;"></div>
+              <div><label style="font-size:11px;color:var(--text2);">Password</label><input id="te-pass-${key}" value="${t.pass}" style="width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-top:4px;"></div>
+              <div><label style="font-size:11px;color:var(--text2);">Subject(s)</label><input id="te-subj-${key}" value="${t.subject||''}" style="width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-top:4px;"></div>
+              <div><label style="font-size:11px;color:var(--text2);">Classes (comma separated)</label><input id="te-cls-${key}" value="${(t.classes||[]).join(', ')}" style="width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-top:4px;"></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary" onclick="saveTeacherEdit('${key}')">✓ Save</button>
+              <button class="btn btn-ghost" onclick="cancelTeacherEdit('${key}')">Cancel</button>
+            </div>
+          </td>
         </tr>`).join('')}
       </tbody></table>
     </div>
   </div>`;
+}
+
+function editTeacherRow(key) {
+  document.getElementById('trow-edit-'+key).style.display='';
+}
+function cancelTeacherEdit(key) {
+  document.getElementById('trow-edit-'+key).style.display='none';
+}
+async function saveTeacherEdit(key) {
+  const name=document.getElementById('te-name-'+key).value.trim();
+  const pass=document.getElementById('te-pass-'+key).value.trim();
+  const subj=document.getElementById('te-subj-'+key).value.trim();
+  const cls=document.getElementById('te-cls-'+key).value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!name||!pass){alert('Name and password required.');return;}
+  DB.users[key]={...DB.users[key],name,pass,subject:subj,classes:cls};
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-teachers');
 }
 
 async function addTeacher() {
@@ -819,6 +995,7 @@ async function removeUser(key) {
 // ===================== ADMIN - STUDENTS =====================
 function buildAdminStudents() {
   const students=Object.entries(DB.users||{}).filter(([k,v])=>v.role==='student');
+  const classOpts=Object.keys(DB.classes||{}).map(c=>`<option value="${c}">${c}</option>`).join('');
   return `<div class="page" id="page-admin-students">
     <div class="page-title">Students</div>
     <div class="page-sub">Add or edit student accounts</div>
@@ -830,26 +1007,57 @@ function buildAdminStudents() {
       </div>
       <div class="form-row">
         <div class="form-field"><label>Password</label><input id="s-pass" placeholder="Password"></div>
-        <div class="form-field"><label>Class</label>
-          <select id="s-cls">
-            ${Object.keys(DB.classes||{}).map(c=>`<option value="${c}">${c}</option>`).join('')}
-          </select>
-        </div>
+        <div class="form-field"><label>Class</label><select id="s-cls">${classOpts}</select></div>
       </div>
       <button class="btn btn-primary" onclick="addStudent()">+ Add Student</button>
     </div>
     <div class="table-card">
       <div class="table-header"><h3>Student Accounts (${students.length})</h3></div>
       <table><thead><tr><th>Name</th><th>Username</th><th>Class</th><th></th></tr></thead><tbody>
-        ${students.map(([key,s])=>`<tr>
+        ${students.map(([key,s])=>`<tr id="srow-${key}">
           <td><div class="td-flex"><div class="avatar av-purple">${initials(s.name)}</div>${s.name}</div></td>
           <td style="font-size:12px;color:var(--text2);">${key}</td>
           <td>${s.class||'—'}</td>
-          <td><button class="btn btn-danger" onclick="removeUser('${key}')">Remove</button></td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn btn-ghost" onclick="editStudentRow('${key}')">Edit</button>
+            <button class="btn btn-danger" onclick="removeUser('${key}')">Remove</button>
+          </td>
+        </tr>
+        <tr id="srow-edit-${key}" style="display:none;background:var(--surface2);">
+          <td colspan="4" style="padding:14px 16px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:10px;">
+              <div><label style="font-size:11px;color:var(--text2);">Full Name</label><input id="se-name-${key}" value="${s.name}" style="width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-top:4px;"></div>
+              <div><label style="font-size:11px;color:var(--text2);">Password</label><input id="se-pass-${key}" value="${s.pass}" style="width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-top:4px;"></div>
+              <div><label style="font-size:11px;color:var(--text2);">Class</label><select id="se-cls-${key}" style="width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-top:4px;">${Object.keys(DB.classes||{}).map(c=>`<option value="${c}" ${s.class===c?'selected':''}>${c}</option>`).join('')}</select></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary" onclick="saveStudentEdit('${key}')">✓ Save</button>
+              <button class="btn btn-ghost" onclick="cancelStudentEdit('${key}')">Cancel</button>
+            </div>
+          </td>
         </tr>`).join('')}
       </tbody></table>
     </div>
   </div>`;
+}
+
+function editStudentRow(key) {
+  document.getElementById('srow-edit-'+key).style.display='';
+}
+function cancelStudentEdit(key) {
+  document.getElementById('srow-edit-'+key).style.display='none';
+}
+async function saveStudentEdit(key) {
+  const name=document.getElementById('se-name-'+key).value.trim();
+  const pass=document.getElementById('se-pass-'+key).value.trim();
+  const cls=document.getElementById('se-cls-'+key).value;
+  if(!name||!pass){alert('Name and password required.');return;}
+  DB.users[key]={...DB.users[key],name,pass,class:cls};
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-students');
 }
 
 async function addStudent() {
@@ -871,7 +1079,7 @@ async function addStudent() {
 function buildAdminClasses() {
   return `<div class="page" id="page-admin-classes">
     <div class="page-title">Classes</div>
-    <div class="page-sub">Manage class rosters</div>
+    <div class="page-sub">Manage class rosters — drag students to reorder</div>
     <div class="form-card">
       <h3>Add New Class</h3>
       <div class="form-row">
@@ -880,23 +1088,112 @@ function buildAdminClasses() {
       <button class="btn btn-primary" onclick="addClass()">+ Add Class</button>
     </div>
     ${Object.entries(DB.classes||{}).map(([cls,students])=>`
-      <div class="table-card">
+      <div class="table-card" style="margin-bottom:20px;">
         <div class="table-header">
-          <h3>${cls} — ${students.length} students</h3>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span id="cls-title-${cls}" style="font-size:14px;font-weight:600;">${cls} — ${students.length} students</span>
+            <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;" onclick="toggleClassRename('${cls}')">Rename</button>
+          </div>
           <div style="display:flex;gap:8px;">
-            <input id="new-st-${cls}" style="padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:inherit;outline:none;width:180px;" placeholder="Student full name">
+            <input id="new-st-${cls}" style="padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:inherit;outline:none;width:160px;" placeholder="Student full name">
             <button class="btn btn-primary" onclick="addStudentToClass('${cls}')">+ Add</button>
-            <button class="btn btn-danger" onclick="deleteClass('${cls}')">Delete Class</button>
+            <button class="btn btn-danger" onclick="deleteClass('${cls}')">Delete</button>
           </div>
         </div>
-        <table><thead><tr><th>Student</th><th></th></tr></thead><tbody>
-          ${students.map(st=>`<tr>
-            <td><div class="td-flex"><div class="avatar av-purple">${initials(st)}</div>${st}</div></td>
-            <td><button class="btn btn-danger" onclick="removeStudentFromClass('${cls}','${st}')">Remove</button></td>
-          </tr>`).join('')}
-        </tbody></table>
+        <div id="cls-rename-${cls}" style="display:none;padding:12px 20px;border-bottom:1px solid var(--border);display:none;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="cls-newname-${cls}" value="${cls}" style="padding:7px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;width:150px;">
+            <button class="btn btn-primary" onclick="renameClass('${cls}')">✓ Rename</button>
+            <button class="btn btn-ghost" onclick="toggleClassRename('${cls}')">Cancel</button>
+          </div>
+        </div>
+        <ul id="sortable-${cls}" style="list-style:none;padding:0;margin:0;">
+          ${students.map((st,idx)=>`<li data-student="${st}" data-cls="${cls}" draggable="true"
+            ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropStudent(event)"
+            style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);cursor:grab;transition:background 0.15s;"
+            onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:12px;color:var(--text3);font-family:monospace;min-width:24px;">${idx+1}</span>
+              <div class="avatar av-purple">${initials(st)}</div>
+              <span id="st-name-${cls}-${idx}" style="font-size:13px;">${st}</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-ghost" style="font-size:11px;padding:3px 10px;" onclick="editStudentName('${cls}',${idx},'${st}')">Edit</button>
+              <button class="btn btn-danger" style="font-size:11px;padding:3px 10px;" onclick="removeStudentFromClass('${cls}','${st}')">Remove</button>
+            </div>
+          </li>`).join('')}
+        </ul>
       </div>`).join('')}
   </div>`;
+}
+
+function toggleClassRename(cls) {
+  const el=document.getElementById('cls-rename-'+cls);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+async function renameClass(oldName) {
+  const newName=document.getElementById('cls-newname-'+oldName).value.trim();
+  if(!newName||newName===oldName) return;
+  if(DB.classes[newName]){alert('Class already exists.');return;}
+  DB.classes[newName]=DB.classes[oldName];
+  delete DB.classes[oldName];
+  // Update teachers classes
+  Object.values(DB.users||{}).forEach(u=>{
+    if(u.role==='teacher'&&u.classes){
+      u.classes=u.classes.map(c=>c===oldName?newName:c);
+    }
+    if(u.role==='student'&&u.class===oldName) u.class=newName;
+  });
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  showPage('admin-classes');
+}
+
+async function editStudentName(cls,idx,oldName) {
+  const newName=prompt('Edit student name:',oldName);
+  if(!newName||newName===oldName) return;
+  DB.classes[cls][idx]=newName;
+  // Update grades/attendance keys
+  if(GRADES[cls]&&GRADES[cls][oldName]){GRADES[cls][newName]=GRADES[cls][oldName];delete GRADES[cls][oldName];}
+  Object.values(ATTENDANCE[cls]||{}).forEach(day=>{if(day[oldName]!==undefined){day[newName]=day[oldName];delete day[oldName];}});
+  showLoading('Saving...');
+  await Promise.all([saveSchool(),saveGradesDB(),saveAttDB()]);
+  hideLoading();
+  flashSave();
+  showPage('admin-classes');
+}
+
+let _dragSrc=null;
+function dragStart(e) {
+  _dragSrc=e.currentTarget;
+  e.dataTransfer.effectAllowed='move';
+}
+function dragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+}
+async function dropStudent(e) {
+  e.preventDefault();
+  const target=e.currentTarget;
+  if(_dragSrc===target) return;
+  const cls=target.getAttribute('data-cls');
+  const list=document.getElementById('sortable-'+cls);
+  const items=[...list.children];
+  const fromIdx=items.indexOf(_dragSrc);
+  const toIdx=items.indexOf(target);
+  if(fromIdx<0||toIdx<0) return;
+  // Reorder in DOM
+  if(fromIdx<toIdx) list.insertBefore(_dragSrc,target.nextSibling);
+  else list.insertBefore(_dragSrc,target);
+  // Reorder in DB
+  const arr=DB.classes[cls];
+  const [moved]=arr.splice(fromIdx,1);
+  arr.splice(toIdx,0,moved);
+  await saveSchool();
+  flashSave();
 }
 
 async function addClass() {
