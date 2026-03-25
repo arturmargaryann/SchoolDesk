@@ -249,11 +249,17 @@ async function saveAttDB() {
 function getTeacherDaysInClass(cls) {
   const schedule = DB.schedule[cls] || {};
   const days = ['Mon','Tue','Wed','Thu','Fri'];
-  const subjs = getSubjects();
+  // Use currently selected subject only
+  const subj = selectedSubject || getSubjects()[0] || '';
+  const teacherName = currentUser.name;
   const teacherDays = [];
   days.forEach(day => {
     const lessons = schedule[day] || [];
-    const hasLesson = lessons.some(l => subjs.includes(l.sub));
+    const hasLesson = lessons.some(l => {
+      const subjMatch = l.sub === subj || l.sub.toLowerCase().includes(subj.toLowerCase()) || subj.toLowerCase().includes(l.sub.toLowerCase());
+      const teacherMatch = l.teacher && l.teacher === teacherName && (l.sub === subj || l.sub.toLowerCase().includes(subj.toLowerCase()) || subj.toLowerCase().includes(l.sub.toLowerCase()));
+      return subjMatch || teacherMatch;
+    });
     if (hasLesson) teacherDays.push(day);
   });
   return teacherDays;
