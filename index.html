@@ -550,9 +550,17 @@ function refreshGradesTable() {
     ${students.map((st,i)=>{
       const g=GRADES[cls]&&GRADES[cls][st]&&GRADES[cls][st][subj]&&GRADES[cls][st][subj][date]?GRADES[cls][st][subj][date]:'';
       return `<tr><td><div class="td-flex"><div class="avatar av-blue">${initials(st)}</div>${st}</div></td>
-        <td><input class="grade-input" type="number" min="1" max="10" value="${g}" id="gi-${i}" placeholder="—"></td></tr>`;
+        <td><div style="display:flex;align-items:center;gap:6px;">
+          <input class="grade-input" type="number" min="1" max="10" value="${g}" id="gi-${i}" placeholder="—">
+          ${g?`<button onclick="clearGrade(${i})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:2px 4px;" title="Remove grade">✕</button>`:''}
+        </div></td></tr>`;
     }).join('')}
   </tbody>`;
+}
+
+function clearGrade(i) {
+  const el = document.getElementById('gi-'+i);
+  if (el) { el.value = ''; el.nextElementSibling?.remove(); }
 }
 
 async function doSaveGrades() {
@@ -562,10 +570,14 @@ async function doSaveGrades() {
   if(!GRADES[cls]) GRADES[cls]={};
   (DB.classes[cls]||[]).forEach((st,i)=>{
     const v=document.getElementById('gi-'+i)?.value;
-    if(v&&v>=1&&v<=10){
-      if(!GRADES[cls][st]) GRADES[cls][st]={};
-      if(!GRADES[cls][st][subj]) GRADES[cls][st][subj]={};
+    if(!GRADES[cls][st]) GRADES[cls][st]={};
+    if(!GRADES[cls][st][subj]) GRADES[cls][st][subj]={};
+    if(v && parseInt(v)>=1 && parseInt(v)<=10){
+      // Save grade
       GRADES[cls][st][subj][date]=parseInt(v);
+    } else {
+      // Delete grade if empty or 0
+      delete GRADES[cls][st][subj][date];
     }
   });
   const topic=document.getElementById('lesson-topic')?.value||'';
