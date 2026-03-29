@@ -247,22 +247,36 @@ async function saveAttDB() {
 
 // Get days teacher has lessons in a class
 function getTeacherDaysInClass(cls) {
-  const schedule = DB.schedule[cls] || {};
   const days = ['Mon','Tue','Wed','Thu','Fri'];
-  // Use currently selected subject only
   const subj = selectedSubject || getSubjects()[0] || '';
   const teacherName = currentUser.name;
-  const teacherDays = [];
-  days.forEach(day => {
-    const lessons = schedule[day] || [];
-    const hasLesson = lessons.some(l => {
-      const subjMatch = l.sub === subj || l.sub.toLowerCase().includes(subj.toLowerCase()) || subj.toLowerCase().includes(l.sub.toLowerCase());
-      const teacherMatch = l.teacher && l.teacher === teacherName && (l.sub === subj || l.sub.toLowerCase().includes(subj.toLowerCase()) || subj.toLowerCase().includes(l.sub.toLowerCase()));
-      return subjMatch || teacherMatch;
+  const teacherDays = new Set();
+  // Check all weeks in schedule
+  const clsSched = DB.schedule[cls] || {};
+  Object.values(clsSched).forEach(weekSched => {
+    // Support both old format {Mon:[...]} and new format {weekStart: {Mon:[...]}}
+    const isWeekBased = weekSched && typeof weekSched === 'object' && !Array.isArray(weekSched) && !weekSched.sub;
+    const schedToCheck = isWeekBased ? weekSched : {Mon: clsSched.Mon||[], Tue: clsSched.Tue||[], Wed: clsSched.Wed||[], Thu: clsSched.Thu||[], Fri: clsSched.Fri||[]};
+    days.forEach(day => {
+      const lessons = schedToCheck[day] || [];
+      const has = lessons.some(l => {
+        const subjMatch = l.sub===subj || l.sub.toLowerCase().includes(subj.toLowerCase()) || subj.toLowerCase().includes(l.sub.toLowerCase());
+        return subjMatch;
+      });
+      if(has) teacherDays.add(day);
     });
-    if (hasLesson) teacherDays.push(day);
   });
-  return teacherDays;
+  // Also check old-format direct day keys
+  days.forEach(day => {
+    const lessons = clsSched[day] || [];
+    if(Array.isArray(lessons)) {
+      const has = lessons.some(l => {
+        return l.sub===subj || l.sub.toLowerCase().includes(subj.toLowerCase()) || subj.toLowerCase().includes(l.sub.toLowerCase());
+      });
+      if(has) teacherDays.add(day);
+    }
+  });
+  return [...teacherDays];
 }
 
 // Generate last 60 days that match teacher's schedule for a class
@@ -306,6 +320,37 @@ function populateDateSelect(selectId, cls, currentDate, onchange) {
     selectedDate = dates[0];
     el.value = dates[0];
   }
+}
+
+function getWeekStart(date) {
+  const d = new Date(date||new Date());
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return dateToStr(d);
+}
+
+function getWeeksOfMonthStr(yearMonthVal) {
+  // Returns array of {label, weekStart} for each week in month
+  const [year, month] = yearMonthVal.split('-').map(Number);
+  const allDays = [];
+  const d = new Date(year, month-1, 1);
+  while(d.getMonth() === month-1) {
+    if(d.getDay() >= 1 && d.getDay() <= 5) allDays.push(new Date(d));
+    d.setDate(d.getDate()+1);
+  }
+  const weeks = [];
+  let week = [];
+  allDays.forEach(day => {
+    if(day.getDay()===1 && week.length>0) { weeks.push(week); week=[]; }
+    week.push(day);
+  });
+  if(week.length>0) weeks.push(week);
+  return weeks.map((wk,i) => {
+    const s=wk[0], e=wk[wk.length-1];
+    const fmt = d => `${d.getDate()}.${String(d.getMonth()+1).padStart(2,'0')}`;
+    return { label:`Week ${i+1}: ${fmt(s)} – ${fmt(e)}`, weekStart: dateToStr(s) };
+  });
 }
 
 function getTodayStr() {
@@ -452,7 +497,7 @@ function showPage(id) {
     'admin-teachers':  ()=>{ const o=document.getElementById('page-admin-teachers');  if(o) o.outerHTML=buildAdminTeachers(); },
     'admin-students':  ()=>{ const o=document.getElementById('page-admin-students');  if(o) o.outerHTML=buildAdminStudents(); },
     'admin-classes':   ()=>{ const o=document.getElementById('page-admin-classes');   if(o) o.outerHTML=buildAdminClasses(); },
-    'admin-schedule':  ()=>{ const o=document.getElementById('page-admin-schedule');  if(o) o.outerHTML=buildAdminSchedule(); },
+    'admin-schedule':  ()=>{ const o=document.getElementById('page-admin-schedule');  if(o) o.outerHTML=buildAdminSchedule(); setTimeout(()=>onSchedMonthChange(),50); },
   };
   if (rebuilds[id]) rebuilds[id]();
   const pg=document.getElementById('page-'+id);
@@ -804,54 +849,63 @@ function renderDiaryWeek() {
   const val=document.getElementById('diary-month-select').value;
   const weekIdx=parseInt(document.getElementById('diary-week-select').value)||0;
   const weeks=getWeeksOfMonth(val);
-  const selectedWeeks=weeks.length?[weeks[weekIdx]].filter(Boolean):[];
-
+  const wk=weeks[weekIdx];
+  if(!wk||!wk.length){
+    document.getElementById('diary-content').innerHTML='<div style="text-align:center;padding:40px;color:var(--text3);">No school days this week.</div>';
+    return;
+  }
   const dayKeyMap={1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri'};
   const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday'];
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  document.getElementById('diary-content').innerHTML=selectedWeeks.map((wk,wi)=>{
-    const wStart=wk[0],wEnd=wk[wk.length-1];
-    const weekLabel=`${wStart.getDate()}.${String(wStart.getMonth()+1).padStart(2,'0')}.${wStart.getFullYear()} – ${wEnd.getDate()}.${String(wEnd.getMonth()+1).padStart(2,'0')}.${wEnd.getFullYear()}`;
-    const daysHtml=wk.map(day=>{
-      const dateStr=dateToStr(day);
-      const dk=dayKeyMap[day.getDay()];
-      const schedule=(DB.schedule[cls]&&DB.schedule[cls][dk])||[];
-      const att=ATTENDANCE[cls]&&ATTENDANCE[cls][dateStr]?ATTENDANCE[cls][dateStr][studentName]:null;
-      return `<div style="margin-bottom:14px;">
-        <div class="diary-day-header">
-          <span>${dayNames[day.getDay()-1]}, ${day.getDate()} ${months[day.getMonth()]}</span>
-          ${att?`<span class="badge badge-${att}">${att==='present'?'Present':att==='absent'?'Absent':'Late'}</span>`:''}
-        </div>
-        <table style="width:100%;border-collapse:collapse;">
-          <thead><tr>
-            <th style="padding:4px 10px;font-size:10px;color:var(--text3);font-weight:500;width:28px;">#</th>
-            <th style="padding:4px 10px;font-size:10px;color:var(--text3);font-weight:500;">Subject</th>
-            <th style="padding:4px 10px;text-align:center;font-size:10px;color:var(--text3);font-weight:500;">Grade</th>
-          </tr></thead>
-          <tbody>
-            ${schedule.length?schedule.map((lesson,i)=>{
-              const g=GRADES[cls]&&GRADES[cls][studentName]&&GRADES[cls][studentName][lesson.sub]?GRADES[cls][studentName][lesson.sub][dateStr]:'';
-              const info=LESSON_INFO[cls]&&LESSON_INFO[cls][lesson.sub]&&LESSON_INFO[cls][lesson.sub][dateStr]?LESSON_INFO[cls][lesson.sub][dateStr]:{};
-              return `<tr style="${i%2===0?'background:var(--surface2)':''}">
-                <td style="padding:5px 10px;font-size:11px;color:var(--text3);">${i+1}</td>
-                <td style="padding:5px 10px;">
-                  <div style="font-size:13px;font-weight:500;">${lesson.sub}</div>
-                  ${info.topic?`<div style="font-size:11px;color:var(--text2);margin-top:1px;">📖 ${info.topic}</div>`:''}
-                  ${info.homework?`<div style="font-size:11px;color:var(--amber);margin-top:1px;">✏️ ${info.homework}</div>`:''}
-                </td>
-                <td style="padding:5px 10px;text-align:center;">${g?`<span class="badge badge-${g}">${g}</span>`:'<span style="color:var(--text3);font-size:12px;">—</span>'}</td>
-              </tr>`;
-            }).join(''):`<tr><td colspan="3" style="padding:12px 10px;font-size:12px;color:var(--text3);text-align:center;">No lessons scheduled</td></tr>`}
-          </tbody>
-        </table>
-      </div>`;
-    }).join('');
-    return `<div class="table-card" style="margin-bottom:20px;">
-      <div class="table-header"><h3>Week ${wi+1} <span style="font-weight:400;color:var(--text2);font-size:13px;">${weekLabel}</span></h3></div>
-      <div style="padding:16px 20px;">${daysHtml}</div>
+  document.getElementById('diary-content').innerHTML=wk.map(day=>{
+    const dateStr=dateToStr(day);
+    const dk=dayKeyMap[day.getDay()];
+    const wkStart=getWeekStart(day);
+    const weekSched=DB.schedule[cls]&&DB.schedule[cls][wkStart];
+    const schedule=(weekSched&&weekSched[dk])||(DB.schedule[cls]&&Array.isArray(DB.schedule[cls][dk])?DB.schedule[cls][dk]:[])||[];
+    const att=ATTENDANCE[cls]&&ATTENDANCE[cls][dateStr]?ATTENDANCE[cls][dateStr][studentName]:null;
+    return `<div class="table-card" style="margin-bottom:14px;">
+      <div class="diary-day-header">
+        <span style="font-weight:600;">${dayNames[day.getDay()-1]}, ${day.getDate()} ${months[day.getMonth()]} ${day.getFullYear()}</span>
+        ${att?`<span class="badge badge-${att}">${att==='present'?'Present':att==='absent'?'Absent':'Late'}</span>`:'<span style="font-size:12px;color:var(--text3);">—</span>'}
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr>
+          <th style="padding:6px 12px;font-size:10px;color:var(--text3);font-weight:500;width:32px;">#</th>
+          <th style="padding:6px 12px;font-size:10px;color:var(--text3);font-weight:500;">Subject</th>
+          <th style="padding:6px 12px;text-align:center;font-size:10px;color:var(--text3);font-weight:500;width:80px;">Grade</th>
+        </tr></thead>
+        <tbody>
+          ${schedule.length?schedule.map((lesson,i)=>{
+            const g=GRADES[cls]&&GRADES[cls][studentName]&&GRADES[cls][studentName][lesson.sub]?GRADES[cls][studentName][lesson.sub][dateStr]:'';
+            const info=LESSON_INFO[cls]&&LESSON_INFO[cls][lesson.sub]&&LESSON_INFO[cls][lesson.sub][dateStr]?LESSON_INFO[cls][lesson.sub][dateStr]:{};
+            const hasInfo=info.topic||info.homework;
+            const infoId='info-'+dateStr+'-'+i;
+            return `<tr style="${i%2===0?'background:var(--surface2)':''}">
+              <td style="padding:8px 12px;font-size:11px;color:var(--text3);">${i+1}</td>
+              <td style="padding:8px 12px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:13px;font-weight:500;">${lesson.sub}</span>
+                  ${hasInfo?`<button onclick="toggleInfo('${infoId}')" style="background:transparent;border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--text2);cursor:pointer;">ℹ️</button>`:''}
+                </div>
+                <div id="${infoId}" style="display:none;margin-top:6px;">
+                  ${info.topic?`<div style="font-size:11px;color:var(--text2);margin-top:2px;">📖 ${info.topic}</div>`:''}
+                  ${info.homework?`<div style="font-size:11px;color:var(--amber);margin-top:2px;">✏️ ${info.homework}</div>`:''}
+                </div>
+              </td>
+              <td style="padding:8px 12px;text-align:center;">${g?`<span class="badge badge-${g}">${g}</span>`:'<span style="color:var(--text3);font-size:12px;">—</span>'}</td>
+            </tr>`;
+          }).join(''):`<tr><td colspan="3" style="padding:12px;font-size:12px;color:var(--text3);text-align:center;">No lessons scheduled</td></tr>`}
+        </tbody>
+      </table>
     </div>`;
   }).join('');
+}
+
+function toggleInfo(id) {
+  const el=document.getElementById(id);
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
 }
 
 function buildMyGradesPage() {
@@ -1262,81 +1316,233 @@ async function removeStudentFromClass(cls,st) {
 function buildAdminSchedule() {
   const days=['Mon','Tue','Wed','Thu','Fri'];
   const classes=Object.keys(DB.classes||{});
+  const now=new Date();
+  const curMonth=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const months=getMonthsForYear(now.getMonth()>=8?`${now.getFullYear()}-${now.getFullYear()+1}`:`${now.getFullYear()-1}-${now.getFullYear()}`);
   return `<div class="page" id="page-admin-schedule">
     <div class="page-title">Schedule</div>
-    <div class="page-sub">Manage class timetables</div>
-    <div class="select-row">
+    <div class="page-sub">Manage weekly timetables per class</div>
+    <div class="select-row" style="margin-bottom:8px;flex-wrap:wrap;">
       <label>Class:</label>
-      <select id="sched-cls-select" onchange="renderScheduleEditor()">
+      <select id="sched-cls-select" onchange="onSchedClassChange()">
         ${classes.map(c=>`<option value="${c}">${c}</option>`).join('')}
+      </select>
+      <label>Month:</label>
+      <select id="sched-month-select" onchange="onSchedMonthChange()">
+        ${months.map(m=>`<option value="${m.val}" ${m.val===curMonth?'selected':''}>${m.label}</option>`).join('')}
+      </select>
+      <label>Week:</label>
+      <select id="sched-week-select" onchange="onSchedWeekChange()">
+        <option>Loading...</option>
       </select>
       <label>Day:</label>
       <select id="sched-day-select" onchange="renderScheduleEditor()">
         ${days.map(d=>`<option value="${d}">${d}</option>`).join('')}
       </select>
     </div>
+    <div class="form-card" style="margin-bottom:16px;">
+      <h3>Copy week schedule</h3>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label style="font-size:13px;color:var(--text2);">Copy current week to:</label>
+        <select id="copy-to-week" style="padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;min-width:200px;">
+          <option>Select week...</option>
+        </select>
+        <button class="btn btn-primary" onclick="copyWeekSchedule()">Copy Week</button>
+      </div>
+    </div>
     <div id="schedule-editor"></div>
   </div>`;
+}
+
+function onSchedClassChange() {
+  onSchedMonthChange();
+}
+
+function onSchedMonthChange() {
+  const monthVal = document.getElementById('sched-month-select').value;
+  const weeks = getWeeksOfMonthStr(monthVal);
+  const weekSel = document.getElementById('sched-week-select');
+  weekSel.innerHTML = weeks.map((w,i)=>`<option value="${w.weekStart}">${w.label}</option>`).join('');
+  // Select current week if in this month
+  const todayWeek = getWeekStart();
+  const found = weeks.find(w=>w.weekStart===todayWeek);
+  if(found) weekSel.value = found.weekStart;
+  onSchedWeekChange();
+}
+
+function onSchedWeekChange() {
+  // Populate copy-to-week with all weeks except current
+  const monthVal = document.getElementById('sched-month-select').value;
+  const curWeek = document.getElementById('sched-week-select').value;
+  // Get all months of academic year
+  const now = new Date();
+  const ay = now.getMonth()>=8?`${now.getFullYear()}-${now.getFullYear()+1}`:`${now.getFullYear()-1}-${now.getFullYear()}`;
+  const allMonths = getMonthsForYear(ay);
+  let allWeeks = [];
+  allMonths.forEach(m => {
+    getWeeksOfMonthStr(m.val).forEach(w => allWeeks.push({...w, month: m.label}));
+  });
+  const copyTo = document.getElementById('copy-to-week');
+  copyTo.innerHTML = '<option value="">Select week...</option>' +
+    allWeeks.filter(w=>w.weekStart!==curWeek).map(w=>`<option value="${w.weekStart}">${w.month} — ${w.label}</option>`).join('');
+  renderScheduleEditor();
+}
+
+function getSchedWeek() {
+  return document.getElementById('sched-week-select')?.value || getWeekStart();
 }
 
 function renderScheduleEditor() {
   const cls=document.getElementById('sched-cls-select')?.value;
   const day=document.getElementById('sched-day-select')?.value;
-  if(!cls||!day) return;
-  const lessons=(DB.schedule[cls]&&DB.schedule[cls][day])||[];
+  const week=getSchedWeek();
+  if(!cls||!day||!week) return;
+  const lessons=(DB.schedule[cls]&&DB.schedule[cls][week]&&DB.schedule[cls][week][day])||[];
   document.getElementById('schedule-editor').innerHTML=`
     <div class="table-card">
-      <div class="table-header"><h3>${cls} — ${day}</h3><button class="btn btn-primary" onclick="addLesson('${cls}','${day}')">+ Add Lesson</button></div>
+      <div class="table-header"><h3>${cls} — ${day} — ${week}</h3><button class="btn btn-primary" onclick="addLesson('${cls}','${week}','${day}')">+ Add Lesson</button></div>
       <table><thead><tr><th>#</th><th>Subject</th><th>Teacher</th><th></th></tr></thead><tbody id="sched-tbody">
-        ${lessons.map((l,i)=>`<tr>
+        ${lessons.map((l,i)=>`
+        <tr id="srow-${i}">
           <td>${i+1}</td>
           <td>${l.sub}</td>
           <td style="color:var(--text2);font-size:12px;">${l.teacher}</td>
-          <td><button class="btn btn-danger" onclick="removeLesson('${cls}','${day}',${i})">Remove</button></td>
+          <td style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="btn btn-ghost" style="padding:4px 8px;" onclick="moveLessonUp('${cls}','${week}','${day}',${i})" ${i===0?'disabled':''}>↑</button>
+            <button class="btn btn-ghost" style="padding:4px 8px;" onclick="moveLessonDown('${cls}','${week}','${day}',${i})" ${i===lessons.length-1?'disabled':''}>↓</button>
+            <button class="btn btn-ghost" onclick="editLesson('${cls}','${week}','${day}',${i})">Edit</button>
+            <button class="btn btn-danger" onclick="removeLesson('${cls}','${week}','${day}',${i})">Remove</button>
+          </td>
+        </tr>
+        <tr id="srow-edit-${i}" style="display:none;background:var(--surface2);">
+          <td colspan="4" style="padding:12px 16px;">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <input id="edit-sub-${i}" value="${l.sub}" style="flex:1;min-width:150px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="Subject">
+              <input id="edit-teacher-${i}" value="${l.teacher}" style="flex:1;min-width:150px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="Teacher">
+              <button class="btn btn-primary" onclick="saveLesson('${cls}','${week}','${day}',${i})">✓ Save</button>
+              <button class="btn btn-ghost" onclick="cancelEditLesson(${i})">Cancel</button>
+            </div>
+          </td>
         </tr>`).join('')}
       </tbody></table>
-      <div style="padding:16px 20px;display:flex;gap:10px;border-top:1px solid var(--border);">
-        <input id="new-sub" style="flex:1;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="Subject name">
-        <input id="new-teacher" style="flex:1;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="Teacher name">
+      <div style="padding:16px 20px;display:flex;gap:10px;border-top:1px solid var(--border);flex-wrap:wrap;">
+        <input id="new-sub" style="flex:1;min-width:150px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="Subject name">
+        <input id="new-teacher" style="flex:1;min-width:150px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;" placeholder="Teacher name">
       </div>
     </div>`;
 }
 
-async function addLesson(cls,day) {
+function editLesson(cls,week,day,idx) {
+  document.getElementById('srow-edit-'+idx).style.display='';
+}
+function cancelEditLesson(idx) {
+  document.getElementById('srow-edit-'+idx).style.display='none';
+}
+async function saveLesson(cls,week,day,idx) {
+  const sub=document.getElementById('edit-sub-'+idx).value.trim();
+  const teacher=document.getElementById('edit-teacher-'+idx).value.trim();
+  if(!sub) return;
+  DB.schedule[cls][week][day][idx]={sub,teacher};
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  renderScheduleEditor();
+}
+
+async function addLesson(cls,week,day) {
   const sub=document.getElementById('new-sub').value.trim();
   const teacher=document.getElementById('new-teacher').value.trim();
   if(!sub) return;
   if(!DB.schedule) DB.schedule={};
   if(!DB.schedule[cls]) DB.schedule[cls]={};
-  if(!DB.schedule[cls][day]) DB.schedule[cls][day]=[];
-  DB.schedule[cls][day].push({sub,teacher});
+  if(!DB.schedule[cls][week]) DB.schedule[cls][week]={};
+  if(!DB.schedule[cls][week][day]) DB.schedule[cls][week][day]=[];
+  DB.schedule[cls][week][day].push({sub,teacher});
   showLoading('Saving...');
   await saveSchool();
   hideLoading();
   flashSave();
-  showPage('admin-schedule');
-  setTimeout(()=>{
-    document.getElementById('sched-cls-select').value=cls;
-    document.getElementById('sched-day-select').value=day;
-    renderScheduleEditor();
-  },100);
+  renderScheduleEditor();
 }
 
-async function removeLesson(cls,day,idx) {
-  DB.schedule[cls][day].splice(idx,1);
+async function removeLesson(cls,week,day,idx) {
+  if(DB.schedule[cls]&&DB.schedule[cls][week]&&DB.schedule[cls][week][day])
+    DB.schedule[cls][week][day].splice(idx,1);
   showLoading('Saving...');
   await saveSchool();
   hideLoading();
   flashSave();
-  showPage('admin-schedule');
-  setTimeout(()=>{
-    document.getElementById('sched-cls-select').value=cls;
-    document.getElementById('sched-day-select').value=day;
-    renderScheduleEditor();
-  },100);
+  renderScheduleEditor();
+}
+
+async function moveLessonUp(cls,week,day,idx) {
+  if(idx===0) return;
+  const arr=DB.schedule[cls][week][day];
+  [arr[idx-1],arr[idx]]=[arr[idx],arr[idx-1]];
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  renderScheduleEditor();
+}
+
+async function moveLessonDown(cls,week,day,idx) {
+  const arr=DB.schedule[cls][week][day];
+  if(idx>=arr.length-1) return;
+  [arr[idx],arr[idx+1]]=[arr[idx+1],arr[idx]];
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  renderScheduleEditor();
+}
+
+async function copyWeekSchedule() {
+  const cls=document.getElementById('sched-cls-select').value;
+  const fromWeek=getSchedWeek();
+  const toWeek=document.getElementById('copy-to-week').value;
+  if(!toWeek){alert('Please select a target week.');return;}
+  if(!confirm(`Copy ${cls} schedule from week ${fromWeek} to ${toWeek}?`)) return;
+  if(!DB.schedule) DB.schedule={};
+  if(!DB.schedule[cls]) DB.schedule[cls]={};
+  DB.schedule[cls][toWeek]=JSON.parse(JSON.stringify(DB.schedule[cls][fromWeek]||{}));
+  showLoading('Saving...');
+  await saveSchool();
+  hideLoading();
+  flashSave();
+  alert('Week schedule copied successfully!');
 }
 
 // ===================== MIGRATE OLD DATA =====================
+// Also converts old schedule format {Mon:[...]} to new {weekStart: {Mon:[...]}}
+function migrateScheduleFormat() {
+  const days = ['Mon','Tue','Wed','Thu','Fri'];
+  Object.keys(DB.schedule||{}).forEach(cls => {
+    const sched = DB.schedule[cls];
+    if(!sched) return;
+    // Check if old format (has direct day keys with arrays)
+    const hasOldFormat = days.some(d => Array.isArray(sched[d]) && sched[d].length>0);
+    if(hasOldFormat) {
+      // Convert to new format using a default week (2025-09-01 = first week of school year)
+      const defaultWeek = '2025-09-01';
+      const newSched = {};
+      // Keep old week-based entries
+      Object.keys(sched).forEach(k => {
+        if(!days.includes(k)) newSched[k] = sched[k];
+      });
+      // Move old day entries to default week
+      const dayData = {};
+      days.forEach(d => { if(sched[d]) dayData[d] = sched[d]; });
+      if(Object.keys(dayData).length > 0) {
+        if(!newSched[defaultWeek]) newSched[defaultWeek] = {};
+        days.forEach(d => { if(dayData[d]) newSched[defaultWeek][d] = dayData[d]; });
+      }
+      DB.schedule[cls] = newSched;
+    }
+  });
+}
+
 async function migrateOldData() {
   // If DB is empty, populate with existing hardcoded data
   if (!DB.users || Object.keys(DB.users).length===0) {
@@ -1388,6 +1594,8 @@ async function migrateOldData() {
 (async()=>{
   await loadAll();
   await migrateOldData();
+  migrateScheduleFormat();
+  if(Object.keys(DB.schedule||{}).length) await saveSchool();
   await loadAll();
 })();
 </script>
