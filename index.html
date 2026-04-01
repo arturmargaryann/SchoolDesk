@@ -212,15 +212,18 @@ select:focus{border-color:var(--accent);}
 <script>
 // ===================== CONFIG =====================
 const API_KEY = '$2a$10$Gi.k.77zA4oqHpM7hiWOPu.sz164TIhfB/m5M0o91k2DOfHCi08b6';
-const BIN_SCHOOL  = '69be81f0b7ec241ddc8bb006'; // users, classes, schedule
-const BIN_GRADES  = '69be81fdaa77b81da90584f9'; // grades + lessonInfo
-const BIN_ATT     = '69be81feaa77b81da90584fe'; // attendance
+const BIN_SCHOOL   = '69be81f0b7ec241ddc8bb006'; // users, classes (NO schedule)
+const BIN_GRADES   = '69be81fdaa77b81da90584f9'; // grades + lessonInfo
+const BIN_ATT      = '69be81feaa77b81da90584fe'; // attendance
+const BIN_SCHEDULE = '69be81efb7ec241ddc8baffe'; // schedule (week-based)
+const MAX_WEEKS    = 16; // keep only last 16 weeks to avoid 100KB limit
 
 // ===================== STATIC ADMIN =====================
 const ADMIN = { pass: 'SchoolAdmin2026', name: 'Administrator' };
 
 // ===================== STATE =====================
-let DB = { users:{}, classes:{}, schedule:{} };
+let DB = { users:{}, classes:{} };
+let SCHEDULE = {}; // {cls: {weekStart: {Mon:[...], ...}}}
 let GRADES = {};
 let LESSON_INFO = {};
 let ATTENDANCE = {};
@@ -248,35 +251,54 @@ async function binSet(id, data) {
 
 // ===================== LOAD / SAVE =====================
 async function loadAll() {
-  showLoading('Loading school data...');
+  showLoading('Loading...');
   try {
-    const school = await binGet(BIN_SCHOOL);
+    // Load all 4 bins in parallel for speed
+    const [school, g, a, sched] = await Promise.all([
+      binGet(BIN_SCHOOL).catch(()=>null),
+      binGet(BIN_GRADES).catch(()=>null),
+      binGet(BIN_ATT).catch(()=>null),
+      binGet(BIN_SCHEDULE).catch(()=>null),
+    ]);
     if (school && school.users) DB = school;
-  } catch(e){}
-  try {
-    const g = await binGet(BIN_GRADES);
-    if (g && g.grades) { GRADES = g.grades; LESSON_INFO = g.lessonInfo||{}; }
-    else if (g && typeof g==='object') GRADES = g;
-  } catch(e){}
-  try {
-    const a = await binGet(BIN_ATT);
+    if (g && g.grades) {
+      GRADES = g.grades;
+      LESSON_INFO = g.lessonInfo||{};
+      THEMATIC_PLAN = g.thematicPlan||{};
+    }
+    else if (g && typeof g==='object' && !Array.isArray(g)) GRADES = g;
     if (a && typeof a==='object' && !Array.isArray(a) && !a.type) ATTENDANCE = a;
-  } catch(e){}
-  // Init empty grade/att objects for classes
+    if (sched && typeof sched==='object' && !Array.isArray(sched)) SCHEDULE = sched;
+  } catch(e){ console.error('loadAll error', e); }
+  // Init empty objects
   Object.keys(DB.classes||{}).forEach(cls => {
     if (!GRADES[cls]) GRADES[cls] = {};
     if (!ATTENDANCE[cls]) ATTENDANCE[cls] = {};
+    if (!SCHEDULE[cls]) SCHEDULE[cls] = {};
     (DB.classes[cls]||[]).forEach(st => { if (!GRADES[cls][st]) GRADES[cls][st] = {}; });
   });
   hideLoading();
 }
 
 async function saveSchool() {
-  try { await binSet(BIN_SCHOOL, DB); } catch(e){}
+  // Save users+classes only (no schedule)
+  const toSave = { users: DB.users, classes: DB.classes };
+  try { await binSet(BIN_SCHOOL, toSave); } catch(e){ console.error('saveSchool',e); }
+}
+
+async function saveScheduleDB() {
+  // Trim old weeks to stay under 100KB
+  Object.keys(SCHEDULE).forEach(cls => {
+    const weeks = Object.keys(SCHEDULE[cls]).sort();
+    if (weeks.length > MAX_WEEKS) {
+      weeks.slice(0, weeks.length - MAX_WEEKS).forEach(w => delete SCHEDULE[cls][w]);
+    }
+  });
+  try { await binSet(BIN_SCHEDULE, SCHEDULE); } catch(e){ console.error('saveSchedule',e); }
 }
 
 async function saveGradesDB() {
-  try { await binSet(BIN_GRADES, {grades:GRADES, lessonInfo:LESSON_INFO}); } catch(e){}
+  try { await binSet(BIN_GRADES, {grades:GRADES, lessonInfo:LESSON_INFO, thematicPlan:THEMATIC_PLAN}); } catch(e){}
 }
 
 async function saveAttDB() {
@@ -292,7 +314,7 @@ function getTeacherDaysInClass(cls) {
   const teacherName = currentUser.name;
   const teacherDays = new Set();
   // Check all weeks in schedule
-  const clsSched = DB.schedule[cls] || {};
+  const clsSched = SCHEDULE[cls] || {};
   Object.values(clsSched).forEach(weekSched => {
     // Support both old format {Mon:[...]} and new format {weekStart: {Mon:[...]}}
     const isWeekBased = weekSched && typeof weekSched === 'object' && !Array.isArray(weekSched) && !weekSched.sub;
@@ -521,8 +543,9 @@ function buildApp() {
       <div class="nav-section">Other</div>
       <div class="nav-item" onclick="showPage('students')" data-page="students"><span class="ni">👥</span> Students</div>
       <div class="nav-item" onclick="showPage('notify')" data-page="notify"><span class="ni">🔔</span> Notifications</div>
+      <div class="nav-item" onclick="showPage('thematic')" data-page="thematic"><span class="ni">📅</span> Thematic Plan</div>
     `;
-    main.innerHTML=buildDashboard()+buildGradesPage()+buildAttendancePage()+buildStudentsPage()+buildNotifyPage();
+    main.innerHTML=buildDashboard()+buildGradesPage()+buildAttendancePage()+buildStudentsPage()+buildNotifyPage()+buildThematicPage();
     refreshGradesTable();
     refreshAttTable();
     showPage('dashboard');
@@ -548,6 +571,7 @@ function showPage(id) {
     'dashboard': ()=>{ const o=document.getElementById('page-dashboard'); if(o) o.outerHTML=buildDashboard(); },
     'students':  ()=>{ const o=document.getElementById('page-students');  if(o) o.outerHTML=buildStudentsPage(); },
     'notify':    ()=>{ const o=document.getElementById('page-notify');    if(o) o.outerHTML=buildNotifyPage(); },
+    'thematic':  ()=>{ const o=document.getElementById('page-thematic');  if(o) o.outerHTML=buildThematicPage(); renderThematicTable(); },
     'admin-dashboard': ()=>{ const o=document.getElementById('page-admin-dashboard'); if(o) o.outerHTML=buildAdminDashboard(); },
     'admin-teachers':  ()=>{ const o=document.getElementById('page-admin-teachers');  if(o) o.outerHTML=buildAdminTeachers(); },
     'admin-students':  ()=>{ const o=document.getElementById('page-admin-students');  if(o) o.outerHTML=buildAdminStudents(); },
@@ -917,8 +941,8 @@ function renderDiaryWeek() {
     const dateStr=dateToStr(day);
     const dk=dayKeyMap[day.getDay()];
     const wkStart=getWeekStart(day);
-    const weekSched=DB.schedule[cls]&&DB.schedule[cls][wkStart];
-    const schedule=(weekSched&&weekSched[dk])||(DB.schedule[cls]&&Array.isArray(DB.schedule[cls][dk])?DB.schedule[cls][dk]:[])||[];
+    const weekSched=SCHEDULE[cls]&&SCHEDULE[cls][wkStart];
+    const schedule=(weekSched&&weekSched[dk])||(SCHEDULE[cls]&&Array.isArray(SCHEDULE[cls][dk])?SCHEDULE[cls][dk]:[])||[];
     const att=ATTENDANCE[cls]&&ATTENDANCE[cls][dateStr]?ATTENDANCE[cls][dateStr][studentName]:null;
     return `<div class="table-card" style="margin-bottom:14px;">
       <div class="diary-day-header">
@@ -1452,7 +1476,7 @@ function renderScheduleEditor() {
   const day=document.getElementById('sched-day-select')?.value;
   const week=getSchedWeek();
   if(!cls||!day||!week) return;
-  const lessons=(DB.schedule[cls]&&DB.schedule[cls][week]&&DB.schedule[cls][week][day])||[];
+  const lessons=(SCHEDULE[cls]&&SCHEDULE[cls][week]&&SCHEDULE[cls][week][day])||[];
   document.getElementById('schedule-editor').innerHTML=`
     <div class="table-card">
       <div class="table-header"><h3>${cls} — ${day} — ${week}</h3><button class="btn btn-primary" onclick="addLesson('${cls}','${week}','${day}')">+ Add Lesson</button></div>
@@ -1497,9 +1521,9 @@ async function saveLesson(cls,week,day,idx) {
   const sub=document.getElementById('edit-sub-'+idx).value.trim();
   const teacher=document.getElementById('edit-teacher-'+idx).value.trim();
   if(!sub) return;
-  DB.schedule[cls][week][day][idx]={sub,teacher};
+  SCHEDULE[cls][week][day][idx]={sub,teacher};
   showLoading('Saving...');
-  await saveSchool();
+  await saveScheduleDB();
   hideLoading();
   flashSave();
   renderScheduleEditor();
@@ -1509,23 +1533,22 @@ async function addLesson(cls,week,day) {
   const sub=document.getElementById('new-sub').value.trim();
   const teacher=document.getElementById('new-teacher').value.trim();
   if(!sub) return;
-  if(!DB.schedule) DB.schedule={};
-  if(!DB.schedule[cls]) DB.schedule[cls]={};
-  if(!DB.schedule[cls][week]) DB.schedule[cls][week]={};
-  if(!DB.schedule[cls][week][day]) DB.schedule[cls][week][day]=[];
-  DB.schedule[cls][week][day].push({sub,teacher});
+  if(!SCHEDULE[cls]) SCHEDULE[cls]={};
+  if(!SCHEDULE[cls][week]) SCHEDULE[cls][week]={};
+  if(!SCHEDULE[cls][week][day]) SCHEDULE[cls][week][day]=[];
+  SCHEDULE[cls][week][day].push({sub,teacher});
   showLoading('Saving...');
-  await saveSchool();
+  await saveScheduleDB();
   hideLoading();
   flashSave();
   renderScheduleEditor();
 }
 
 async function removeLesson(cls,week,day,idx) {
-  if(DB.schedule[cls]&&DB.schedule[cls][week]&&DB.schedule[cls][week][day])
-    DB.schedule[cls][week][day].splice(idx,1);
+  if(SCHEDULE[cls]&&SCHEDULE[cls][week]&&SCHEDULE[cls][week][day])
+    SCHEDULE[cls][week][day].splice(idx,1);
   showLoading('Saving...');
-  await saveSchool();
+  await saveScheduleDB();
   hideLoading();
   flashSave();
   renderScheduleEditor();
@@ -1533,21 +1556,21 @@ async function removeLesson(cls,week,day,idx) {
 
 async function moveLessonUp(cls,week,day,idx) {
   if(idx===0) return;
-  const arr=DB.schedule[cls][week][day];
+  const arr=SCHEDULE[cls][week][day];
   [arr[idx-1],arr[idx]]=[arr[idx],arr[idx-1]];
   showLoading('Saving...');
-  await saveSchool();
+  await saveScheduleDB();
   hideLoading();
   flashSave();
   renderScheduleEditor();
 }
 
 async function moveLessonDown(cls,week,day,idx) {
-  const arr=DB.schedule[cls][week][day];
+  const arr=SCHEDULE[cls][week][day];
   if(idx>=arr.length-1) return;
   [arr[idx],arr[idx+1]]=[arr[idx+1],arr[idx]];
   showLoading('Saving...');
-  await saveSchool();
+  await saveScheduleDB();
   hideLoading();
   flashSave();
   renderScheduleEditor();
@@ -1559,43 +1582,164 @@ async function copyWeekSchedule() {
   const toWeek=document.getElementById('copy-to-week').value;
   if(!toWeek){alert('Please select a target week.');return;}
   if(!confirm(`Copy ${cls} schedule from week ${fromWeek} to ${toWeek}?`)) return;
-  if(!DB.schedule) DB.schedule={};
-  if(!DB.schedule[cls]) DB.schedule[cls]={};
-  DB.schedule[cls][toWeek]=JSON.parse(JSON.stringify(DB.schedule[cls][fromWeek]||{}));
+  if(!SCHEDULE) SCHEDULE={};
+  if(!SCHEDULE[cls]) SCHEDULE[cls]={};
+  SCHEDULE[cls][toWeek]=JSON.parse(JSON.stringify(SCHEDULE[cls][fromWeek]||{}));
   showLoading('Saving...');
-  await saveSchool();
+  await saveScheduleDB();
   hideLoading();
   flashSave();
   alert('Week schedule copied successfully!');
+}
+
+// ===================== THEMATIC PLAN =====================
+function buildThematicPage() {
+  const subjects = getSubjects();
+  const classes = currentUser.classes || [];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  const ay = now.getMonth()>=8?`${now.getFullYear()}-${now.getFullYear()+1}`:`${now.getFullYear()-1}-${now.getFullYear()}`;
+  const allMonths = getMonthsForYear(ay);
+
+  return `<div class="page" id="page-thematic">
+    <div class="page-title">📅 Thematic Plan</div>
+    <div class="page-sub">Annual lesson plan by class and subject</div>
+    <div class="select-row" style="margin-bottom:16px;">
+      <label>Class:</label>
+      <select id="tp-cls" onchange="renderThematicTable()">
+        ${classes.map(c=>`<option value="${c}">${c}</option>`).join('')}
+      </select>
+      ${subjects.length>1?`<label>Subject:</label>
+      <select id="tp-subj" onchange="renderThematicTable()">
+        ${subjects.map(s=>`<option value="${s}">${s}</option>`).join('')}
+      </select>`:`<input type="hidden" id="tp-subj" value="${subjects[0]||''}">`}
+      <label>Month:</label>
+      <select id="tp-month" onchange="renderThematicTable()">
+        ${allMonths.map(m=>`<option value="${m.val}" ${m.val===`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`?'selected':''}>${m.label}</option>`).join('')}
+      </select>
+    </div>
+    <div id="thematic-table"></div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-primary" onclick="saveThematicPlan()">✓ Save Plan</button>
+    </div>
+  </div>`;
+}
+
+function renderThematicTable() {
+  const cls = document.getElementById('tp-cls')?.value;
+  const subj = document.getElementById('tp-subj')?.value;
+  const monthVal = document.getElementById('tp-month')?.value;
+  if (!cls||!subj||!monthVal) return;
+
+  const username = currentUser.username;
+  const weeks = getWeeksOfMonthStr(monthVal);
+  const dayKeyMap = {1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri'};
+  const dayNames = ['Mon','Tue','Wed','Thu','Fri'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // Get existing plan entries
+  const plan = THEMATIC_PLAN[username]?.[cls]?.[subj] || {};
+
+  // Collect all lesson days for this class+subject in this month
+  const lessonDays = [];
+  weeks.forEach(({weekStart}) => {
+    const weekSched = SCHEDULE[cls]?.[weekStart] || {};
+    // Check all 5 days
+    const d = new Date(weekStart);
+    for (let i=0; i<5; i++) {
+      const dateStr = dateToStr(d);
+      const dk = dayKeyMap[d.getDay()];
+      if (dk) {
+        const lessons = weekSched[dk] || (SCHEDULE[cls]?.[dk]) || [];
+        const hasSubj = lessons.some(l => l.sub===subj || l.sub.toLowerCase().includes(subj.toLowerCase()) || subj.toLowerCase().includes(l.sub.toLowerCase()));
+        if (hasSubj) lessonDays.push({dateStr, dk, weekStart});
+      }
+      d.setDate(d.getDate()+1);
+    }
+  });
+
+  if (!lessonDays.length) {
+    document.getElementById('thematic-table').innerHTML = `<div style="text-align:center;padding:30px;color:var(--text3);">No lessons scheduled for ${subj} in ${cls} this month.<br><span style="font-size:12px;">Add lessons in Admin → Schedule first.</span></div>`;
+    return;
+  }
+
+  document.getElementById('thematic-table').innerHTML = `
+    <div class="table-card">
+      <div class="table-header"><h3>${cls} · ${subj}</h3></div>
+      <div style="overflow-x:auto;">
+        <table style="min-width:700px;">
+          <thead><tr>
+            <th style="width:120px;">Date</th>
+            <th>Topic</th>
+            <th>Goal</th>
+            <th>Homework</th>
+            <th style="width:80px;">Grade</th>
+          </tr></thead>
+          <tbody>
+            ${lessonDays.map((ld,i) => {
+              const dt = new Date(ld.dateStr);
+              const dateLabel = `${dayNames[dt.getDay()-1]} ${dt.getDate()} ${months[dt.getMonth()]}`;
+              const entry = plan[ld.dateStr] || {};
+              return `<tr style="${i%2===0?'background:var(--surface2)':''}">
+                <td style="font-size:12px;color:var(--text2);white-space:nowrap;">${dateLabel}</td>
+                <td><input id="tp-topic-${ld.dateStr}" value="${(entry.topic||'').replace(/"/g,'&quot;')}" style="width:100%;padding:5px 8px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:inherit;outline:none;" placeholder="Lesson topic..."></td>
+                <td><input id="tp-goal-${ld.dateStr}" value="${(entry.goal||'').replace(/"/g,'&quot;')}" style="width:100%;padding:5px 8px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:inherit;outline:none;" placeholder="Learning goal..."></td>
+                <td><input id="tp-hw-${ld.dateStr}" value="${(entry.homework||'').replace(/"/g,'&quot;')}" style="width:100%;padding:5px 8px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:inherit;outline:none;" placeholder="Homework..."></td>
+                <td style="text-align:center;font-size:12px;color:var(--text3);">${entry.lessonNum||i+1}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  window._tpLessonDays = lessonDays;
+}
+
+async function saveThematicPlan() {
+  const cls = document.getElementById('tp-cls')?.value;
+  const subj = document.getElementById('tp-subj')?.value;
+  const lessonDays = window._tpLessonDays || [];
+  if (!cls||!subj||!lessonDays.length) return;
+
+  const username = currentUser.username;
+  if (!THEMATIC_PLAN[username]) THEMATIC_PLAN[username] = {};
+  if (!THEMATIC_PLAN[username][cls]) THEMATIC_PLAN[username][cls] = {};
+  if (!THEMATIC_PLAN[username][cls][subj]) THEMATIC_PLAN[username][cls][subj] = {};
+
+  lessonDays.forEach((ld, i) => {
+    const topic = document.getElementById('tp-topic-'+ld.dateStr)?.value || '';
+    const goal = document.getElementById('tp-goal-'+ld.dateStr)?.value || '';
+    const hw = document.getElementById('tp-hw-'+ld.dateStr)?.value || '';
+    THEMATIC_PLAN[username][cls][subj][ld.dateStr] = { topic, goal, homework:hw, lessonNum:i+1 };
+  });
+
+  showLoading('Saving plan...');
+  await saveGradesDB();
+  hideLoading();
+  flashSave();
 }
 
 // ===================== MIGRATE OLD DATA =====================
 // Also converts old schedule format {Mon:[...]} to new {weekStart: {Mon:[...]}}
 function migrateScheduleFormat() {
   const days = ['Mon','Tue','Wed','Thu','Fri'];
+  // Move any schedule from DB to SCHEDULE
   Object.keys(DB.schedule||{}).forEach(cls => {
+    if(!SCHEDULE[cls]) SCHEDULE[cls] = {};
     const sched = DB.schedule[cls];
     if(!sched) return;
-    // Check if old format (has direct day keys with arrays)
     const hasOldFormat = days.some(d => Array.isArray(sched[d]) && sched[d].length>0);
     if(hasOldFormat) {
-      // Convert to new format using a default week (2025-09-01 = first week of school year)
       const defaultWeek = '2025-09-01';
-      const newSched = {};
-      // Keep old week-based entries
-      Object.keys(sched).forEach(k => {
-        if(!days.includes(k)) newSched[k] = sched[k];
-      });
-      // Move old day entries to default week
-      const dayData = {};
-      days.forEach(d => { if(sched[d]) dayData[d] = sched[d]; });
-      if(Object.keys(dayData).length > 0) {
-        if(!newSched[defaultWeek]) newSched[defaultWeek] = {};
-        days.forEach(d => { if(dayData[d]) newSched[defaultWeek][d] = dayData[d]; });
-      }
-      DB.schedule[cls] = newSched;
+      if(!SCHEDULE[cls][defaultWeek]) SCHEDULE[cls][defaultWeek] = {};
+      days.forEach(d => { if(sched[d]) SCHEDULE[cls][defaultWeek][d] = sched[d]; });
+    } else {
+      // Already week-based, just move over
+      Object.assign(SCHEDULE[cls], sched);
     }
   });
+  delete DB.schedule;
 }
 
 async function migrateOldData() {
@@ -1623,7 +1767,7 @@ async function migrateOldData() {
       '10B':['Lilit Grigoryan','Arman Avagyan','Nare Simonyan','Tigran Karapetyan','Lusine Danielyan'],
       '11A':['Karen Mikaelyan','Diana Ohanyan','Levon Stepanyan'],
     };
-    DB.schedule = {
+    SCHEDULE = {
       '6A':{
         'Mon':[{sub:'English',teacher:'Marina Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Nature',teacher:'Nare Harutyunyan'},{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'History',teacher:'Artur Margaryan'},{sub:'Russian Language',teacher:'Lusine Vardanyan'}],
         'Tue':[{sub:'Physical Education',teacher:'Aram Ghazaryan'},{sub:'Music',teacher:'Vahan Hovhannisyan'},{sub:'Mathematics',teacher:'Irina Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'Armenian Language',teacher:'Narine Margaryan'},{sub:'English',teacher:'Marina Margaryan'}],
@@ -1650,7 +1794,7 @@ async function migrateOldData() {
   await loadAll();
   await migrateOldData();
   migrateScheduleFormat();
-  if(Object.keys(DB.schedule||{}).length) await saveSchool();
+  await Promise.all([saveSchool(), saveScheduleDB()]);
   await loadAll();
 })();
 </script>
