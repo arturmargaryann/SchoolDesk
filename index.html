@@ -1792,10 +1792,6 @@ async function migrateOldData() {
 // ===================== INIT =====================
 (async()=>{
   await loadAll();
-  await migrateOldData();
-  migrateScheduleFormat();
-  await Promise.all([saveSchool(), saveScheduleDB()]);
-  await loadAll();
 })();
 </script>
 </body>
