@@ -557,6 +557,7 @@ const BS='school';
 const BG='grades';
 const BA='attendance';
 const BC='schedule';
+const BB='broadcasts';
 const AP='SchoolAdmin2026';
 
 // ── i18n: EN / RU ──
@@ -575,6 +576,11 @@ const I18N={
     classes:'Classes',schedule:'Schedule',pending:'Pending',
     checkin:'Check-in (Barcode)',school_open:'School Open',school_closed:'School Closed',
     new_year:'New Academic Year',software_updates:'Software Updates',ads:'Ads',
+    broadcast:'Send to Everyone',broadcast_sub:'Send a message that every teacher, student and family will see as a notification.',
+    broadcast_title:'Title',broadcast_title_ph:'e.g. School closed tomorrow',
+    broadcast_msg:'Message',broadcast_msg_ph:'Write your message here...',
+    broadcast_send:'Send to Everyone',broadcast_history:'Sent messages',
+    broadcast_none:'No messages sent yet.',
     // Nav — teacher
     grades:'Grades',semester_grades:'Semester Grades',homeroom:'Homeroom',
     thematic_plan:'Thematic Plan',messages:'Messages',my_profile:'My Profile',
@@ -628,6 +634,11 @@ const I18N={
     classes:'Классы',schedule:'Расписание',pending:'На рассмотрении',
     checkin:'Вход (Штрихкод)',school_open:'Школа открыта',school_closed:'Школа закрыта',
     new_year:'Новый учебный год',software_updates:'Обновления',ads:'Реклама',
+    broadcast:'Отправить всем',broadcast_sub:'Отправьте сообщение, которое каждый учитель, ученик и семья увидят как уведомление.',
+    broadcast_title:'Заголовок',broadcast_title_ph:'напр. Завтра школа закрыта',
+    broadcast_msg:'Сообщение',broadcast_msg_ph:'Напишите сообщение здесь...',
+    broadcast_send:'Отправить всем',broadcast_history:'Отправленные сообщения',
+    broadcast_none:'Сообщений пока не отправлено.',
     // Nav — teacher
     grades:'Оценки',semester_grades:'Оценки за семестр',homeroom:'Классное руководство',
     thematic_plan:'Тематический план',messages:'Сообщения',my_profile:'Мой профиль',
@@ -730,6 +741,12 @@ function renderLangSwitcher(){
 // Rather than touch every function, we keep English as the source text and
 // translate it live whenever the language is Russian, by walking the DOM.
 const RU_MAP={
+  'Administrator':'Администратор',
+  'Administrator sign in':'Вход администратора',
+  'Teacher sign in':'Вход учителя',
+  'Student sign in':'Вход ученика',
+  'Family sign in':'Вход семьи',
+  'This section is coming soon.':'Этот раздел скоро появится.',
   'Sign In':'Войти',
   'Register here':'Зарегистрироваться',
   'Create Account':'Создать аккаунт',
@@ -1027,6 +1044,16 @@ const RU_MAP={
   'Student Accounts':'Аккаунты учеников',
   'e.g. 10A':'напр. 10A',
   'Example:':'Пример:',
+  'Please fill in both the title and the message.':'Пожалуйста, заполните и заголовок, и сообщение.',
+  'Sending...':'Отправка...',
+  '✓ Sent to everyone.':'✓ Отправлено всем.',
+  'Delete this message?':'Удалить это сообщение?',
+  'New grade':'Новая оценка',
+  'You have a new grade — check your diary':'У вас новая оценка — проверьте дневник',
+  'New message from ':'Новое сообщение от ',
+  ' sent a message':' отправил(а) сообщение',
+  'Check the latest grade in their diary':'Посмотрите последнюю оценку в их дневнике',
+  'New grade for ':'Новая оценка у ',
 };
 const RU_KEYS=Object.keys(RU_MAP).sort((a,b)=>b.length-a.length);
 function trText(str){
@@ -1086,7 +1113,7 @@ window.confirm=function(msg){return _nativeConfirm(trText(String(msg)));};
 
 
 
-let DB={users:{},classes:{}},SC={},GR={},LI={},AT={},PE={},MSGS={},CALLS={};
+let DB={users:{},classes:{}},SC={},GR={},LI={},AT={},PE={},MSGS={},CALLS={},BCASTS=[];
 let CU=null,sCls=null,sDate='',sSubj=null,sLes=1,cRole='teacher';
 
 const $=id=>document.getElementById(id);
@@ -1181,15 +1208,17 @@ async function bSet(id,data){
 async function loadAll(){
   sLoad('Loading...');
   try{
-    const[s,g,a,schedData]=await Promise.all([
+    const[s,g,a,schedData,bc]=await Promise.all([
       bGet(BS).catch(()=>null),
       bGet(BG).catch(()=>null),
       bGet(BA).catch(()=>null),
       bGet(BC).catch(()=>null),
+      bGet(BB).catch(()=>null),
     ]);
     if(s&&s.users){DB=s;PE=s.pending||{};}
     if(g){GR=g.grades||{};LI=g.lessonInfo||{};MSGS=g.messages||{};CALLS=g.calls||{};window._tp=g.thematic||{};}
     if(a&&typeof a==='object'&&!a.type)AT=a;
+    if(bc&&Array.isArray(bc.items))BCASTS=bc.items;
     if(schedData&&typeof schedData==='object'&&!Array.isArray(schedData)){
       SC=schedData;
       // Migrate any week keys that aren't actual Mondays (from older buggy partial-week logic)
@@ -1443,7 +1472,8 @@ async function endCall(toKey){
 let NOTIFS=[];
 let _notifWatchTimer=null;
 let _lastSeenMsgCount={}; // threadKey -> count, to detect new messages
-let _lastSeenGradeCount=null; // total grade entries seen, for family role
+let _lastSeenGradeCount=null; // total grade entries seen, for family/student role
+let _lastSeenBcastCount=null; // count of admin broadcasts already notified about
 
 function notifStoreKey(){return'notifs_'+(CU?CU.username:'anon')}
 function loadNotifs(){
@@ -1542,7 +1572,15 @@ function startNotifWatcher(){
       Object.values(subjMap).forEach(dates=>{count+=Object.keys(dates).length;});
       _lastSeenGradeCount[ch.name]=count;
     });
+  }else if(CU.role==='student'){
+    const cls=CU.class||CU.studentClass||'';
+    const subjMap=(GR[cls]&&GR[cls][CU.name])||{};
+    let count=0;
+    Object.values(subjMap).forEach(dates=>{count+=Object.keys(dates).length;});
+    _lastSeenGradeCount={};
+    _lastSeenGradeCount[CU.name]=count;
   }
+  _lastSeenBcastCount=(BCASTS||[]).length;
   if(_notifWatchTimer)clearInterval(_notifWatchTimer);
   _notifWatchTimer=setInterval(checkForNewNotifs,4000);
 }
@@ -1599,6 +1637,30 @@ async function checkForNewNotifs(){
         }
         _lastSeenGradeCount[ch.name]=count;
       });
+    }else if(CU.role==='student'){
+      const cls=CU.class||CU.studentClass||'';
+      const subjMap=(freshGrades[cls]&&freshGrades[cls][CU.name])||{};
+      let count=0;
+      Object.values(subjMap).forEach(dates=>{count+=Object.keys(dates).length;});
+      const prevCount=(_lastSeenGradeCount&&_lastSeenGradeCount[CU.name])||0;
+      if(count>prevCount){
+        addNotif('⭐','New grade','You have a new grade — check your diary',()=>{showPg('di')});
+      }
+      if(!_lastSeenGradeCount)_lastSeenGradeCount={};
+      _lastSeenGradeCount[CU.name]=count;
+    }
+    // Admin broadcasts — surfaced to every non-admin role
+    if(CU.role!=='admin'){
+      const freshBc=(await bGet(BB).catch(()=>null))||{};
+      const items=Array.isArray(freshBc.items)?freshBc.items:[];
+      const prevCount=_lastSeenBcastCount==null?items.length:_lastSeenBcastCount;
+      if(items.length>prevCount){
+        items.slice(0,items.length-prevCount).reverse().forEach(b=>{
+          addNotif('📢',b.title,b.body,null);
+        });
+      }
+      BCASTS=items;
+      _lastSeenBcastCount=items.length;
     }
   }catch(e){}
 }
@@ -1844,6 +1906,38 @@ async function svSched(){
   }catch(e){hLoad();alert('❌ Save error (Schedule): '+e.message+' ('+kb+'KB)');throw e;}
 }
 
+// -- ADMIN BROADCASTS (message to everyone) --
+async function svBroadcasts(){
+  try{
+    await bSet(BB,{items:BCASTS.slice(0,50)});
+  }catch(e){hLoad();alert('❌ Save error (Broadcast): '+e.message);throw e;}
+}
+async function sendBroadcast(){
+  const ti=$('bc-title'),bo=$('bc-body');
+  const title=(ti?.value||'').trim(),body=(bo?.value||'').trim();
+  if(!title||!body){alert('Please fill in both the title and the message.');return;}
+  sLoad('Sending...');
+  BCASTS.unshift({id:Date.now()+Math.random(),title,body,from:CU.name,ts:Date.now()});
+  try{
+    await svBroadcasts();
+    if(ti)ti.value='';if(bo)bo.value='';
+    hLoad();
+    const o=$('sads');if(o)o.outerHTML=buildAdminAds();
+    alert('✓ Sent to everyone.');
+  }catch(e){/* svBroadcasts already alerted */}
+}
+async function deleteBroadcast(id){
+  if(!confirm('Delete this message?'))return;
+  BCASTS=BCASTS.filter(b=>String(b.id)!==String(id));
+  sLoad('Saving...');
+  try{
+    await svBroadcasts();
+    hLoad();
+    const o=$('sads');if(o)o.outerHTML=buildAdminAds();
+  }catch(e){}
+}
+
+
 // CAPTCHA
 let _ca='';
 function genCap(){const a=Math.floor(Math.random()*9)+1,b=Math.floor(Math.random()*9)+1;_ca=''+(a+b);const el=$('cql');if(el)el.textContent='Captcha: '+a+' + '+b+' = ?'}
@@ -1983,6 +2077,7 @@ function showPg(id){
     'adash':()=>{const o=$('adash');if(o){o.outerHTML=buildADash()}},
     'apend':()=>{const o=$('apend');if(o){o.outerHTML=buildAPend()};updPC()},
     'checkin':()=>{if(typeof stopScanner==='function')stopScanner();const o=$('checkin');if(o){o.outerHTML=buildCheckin()}},
+    'sads':()=>{const o=$('sads');if(o){o.outerHTML=buildAdminAds()}},
     'hr':()=>{const o=$('hr');if(o){o.outerHTML=buildHR()}},
     'stu':()=>{const o=$('stu');if(o){o.outerHTML=buildStu()}},
     'asc':()=>{const o=$('asc');if(o){o.outerHTML=buildASc()};setTimeout(()=>{onScMo()},50)},
@@ -2013,7 +2108,7 @@ function buildNav(){
       +'<div class="ni" onclick="showPg(\'asc\')" data-p="asc">📅 '+t('schedule')+'</div>'
       +'<div class="ni" onclick="showPg(\'apend\')" data-p="apend">⏳ '+t('pending')+' <span class="pb" id="pc"></span></div>'
       +'<div class="ni" onclick="showPg(\'checkin\')" data-p="checkin">🔍 '+t('checkin')+'</div>'
-      +'<div class="ni" onclick="showPg(\'sads\')" data-p="sads">📢 '+t('ads')+'</div>'
+      +'<div class="ni" onclick="showPg(\'sads\')" data-p="sads">✉️ '+t('broadcast')+'</div>'
       +'<div class="sbs">'+t('nav_system')+'</div>'
       +'<div class="ni" id="maint-ni" onclick="toggleMaint()" style="color:var(--grn)">🟢 '+t('school_open')+'</div>'
       +'<div class="ni" onclick="confirmNewYear()" style="color:#ffd54f">🎓 '+t('new_year')+'</div>';
@@ -4073,6 +4168,29 @@ function buildProf(){
 function $$(id){return document.getElementById(id)}
 
 // -- ADMIN CHECK-IN (BARCODE SCAN) --
+function buildAdminAds(){
+  const rows=(BCASTS||[]).map(b=>'<div class="cd" style="padding:14px;margin-bottom:8px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'
+    +'<div style="flex:1;min-width:0">'
+    +'<div style="font-weight:700;font-size:13px;color:var(--txt)">'+esc2(b.title)+'</div>'
+    +'<div style="font-size:12px;color:var(--txt2);margin-top:3px;white-space:pre-wrap">'+esc2(b.body)+'</div>'
+    +'<div style="font-size:10px;color:var(--txt3);margin-top:6px">'+new Date(b.ts).toLocaleString()+'</div>'
+    +'</div>'
+    +'<button class="btn bd2" style="flex-shrink:0" onclick="deleteBroadcast(\''+b.id+'\')">🗑</button>'
+    +'</div></div>'
+  ).join('');
+  return'<div class="pg" id="sads">'
+    +'<div class="pt">📢 '+t('broadcast')+'</div>'
+    +'<div class="ps">'+t('broadcast_sub')+'</div>'
+    +'<div class="fc" style="max-width:520px;margin-bottom:20px">'
+    +'<div class="fg"><label>'+t('broadcast_title')+'</label><input id="bc-title" type="text" placeholder="'+t('broadcast_title_ph')+'"></div>'
+    +'<div class="fg"><label>'+t('broadcast_msg')+'</label><textarea id="bc-body" rows="4" placeholder="'+t('broadcast_msg_ph')+'" style="width:100%;padding:10px;border-radius:var(--r2);border:1.5px solid var(--bdr);background:var(--surf2);color:var(--txt);font-family:inherit;resize:vertical"></textarea></div>'
+    +'<button class="bmain" onclick="sendBroadcast()">✉️ '+t('broadcast_send')+'</button>'
+    +'</div>'
+    +'<h3 style="font-size:14px;margin-bottom:10px;color:var(--txt2)">'+t('broadcast_history')+'</h3>'
+    +(rows||'<p style="color:var(--txt3);padding:12px 0">'+t('broadcast_none')+'</p>')
+    +'</div>';
+}
 function buildCheckin(){
   return'<div class="pg" id="checkin">'
     +'<div class="pt">🔍 Check-in</div>'
